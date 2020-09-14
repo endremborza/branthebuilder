@@ -1,14 +1,14 @@
 [project]
-name = "mypackage"
-description = "Template package"
+name = "branthebuilder"
+description = "Invoke command collection for managing python packages"
 authors = [
     "Endre Márk Borza"
 ]
 license = "MIT"
 readme = "README.md"
 python = ">=3.7"
-url = "https://github.com/endremborza/mypackage"
-keywords="boilerplate"
+url = "https://github.com/endremborza/branthebuilder"
+keywords="invoke"
 [build-system]
 requires = [
     "toml >= 0.10.0",
