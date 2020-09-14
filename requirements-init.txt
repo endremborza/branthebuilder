@@ -10,3 +10,4 @@ codecov
 toml
 flake8
 isort
+git+https://github.com/endremborza/branthebuilder
