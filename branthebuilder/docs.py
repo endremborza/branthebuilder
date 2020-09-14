@@ -1,7 +1,8 @@
-import toml
-from invoke import task
 import glob
 import os
+
+import toml
+from invoke import task
 
 from .vars import doctest_notebooks_glob
 

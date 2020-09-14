@@ -1,9 +1,11 @@
-import os
 import glob
 import json
-from invoke import task
+import os
 
-from .vars import package_name, doctest_notebooks_glob
+from invoke import task
+from invoke.exceptions import UnexpectedExit
+
+from .vars import doctest_notebooks_glob, package_name
 
 
 @task
@@ -42,5 +44,7 @@ def test(c, option="", html=False, xml=False, notebook_tests=True):
         with open(test_notebook_path, "w") as fp:
             fp.write("\n\n".join(new_test_scripts))
 
-    c.run(comm)
-    c.run("rm {}/tests/test_nb_integrations.py".format(package_name))
+    try:
+        c.run(comm)
+    except UnexpectedExit:
+        c.run(f"rm {package_name}/tests/test_nb_integrations.py")

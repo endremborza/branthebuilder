@@ -1,14 +1,14 @@
-from invoke import task
 import io
 
+from invoke import task
+
 from .vars import mymodule
+
+version = mymodule.__version__
 
 
 @task
 def new(c):
-
-    version = mymodule.__version__
-
     c.run("python setup.py sdist")
     c.run("twine check dist/*")
     c.run(
@@ -18,16 +18,13 @@ def new(c):
 
 @task
 def tag(c):
-
-    version = mymodule.__version__
-
     f = io.StringIO()
     c.run("git rev-parse --abbrev-ref HEAD", out_stream=f)
     branch = f.getvalue().strip()
     f.close()
 
     if branch == "master":
-        tag_version = "v{}".format(version)
+        tag_version = f"v{version}"
         f2 = io.StringIO()
         c.run("git tag", out_stream=f2)
         tags = f2.getvalue().split()
@@ -37,7 +34,7 @@ def tag(c):
             with open(current_release_path) as fp:
                 notes = fp.read()
             with open(
-                "docs_config/release_notes/{}.rst".format(tag_version), "w"
+                f"docs_config/release_notes/{tag_version}.rst", "w"
             ) as fp:
                 fp.write(notes)
             c.run(f"git tag -a {tag_version} -m '{notes}'")
@@ -45,6 +42,6 @@ def tag(c):
                 fp.write("")
             c.run("git push --tags")
         else:
-            print("{} version already tagged".format(tag_version))
+            print(f"{tag_version} version already tagged")
     else:
         print("only master branch can be tagged")

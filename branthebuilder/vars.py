@@ -1,5 +1,6 @@
-import toml
 import importlib
+
+import toml
 
 pytom = toml.load("pyproject.toml")
 package_name = pytom["project"]["name"]

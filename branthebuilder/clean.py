@@ -1,3 +1,5 @@
+import os
+
 from invoke import task
 
 from .vars import package_name
@@ -11,22 +13,21 @@ def clean(
     bytecode=False,
     test=False,
     sonar=False,
-    all=False,
+    everything=False,
 ):
     patterns = []
-    if docs or all:
+    if docs or everything:
         patterns.append("docs")
-    if build or all:
-        patterns += ["build", "{}.egg-info".format(package_name)]
-    if bytecode or all:
+    if build or everything:
+        patterns += ["build", f"{package_name}.egg-info"]
+    if bytecode or everything:
         patterns.append("**/*.pyc")
-    if sonar or all:
+    if sonar or everything:
         patterns += [
-            "{}/.sonar".format(package_name),
-            "{}/.scannerwork".format(package_name),
-            "{}/sonar-project.properties".format(package_name),
+            os.path.join(package_name, s)
+            for s in [".sonar", ".scannerwork", "sonar-project.properties"]
         ]
-    if test or all:
+    if test or everything:
         patterns += [
             ".pytest_cache",
             ".coverage",
@@ -36,9 +37,9 @@ def clean(
         ]
 
     for pattern in patterns:
-        c.run("rm -rf {}".format(pattern))
+        c.run(f"rm -rf {pattern}")
 
 
 @task
 def prune(c):
-    clean(c, all=True)
+    clean(c, everything=True)

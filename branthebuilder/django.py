@@ -1,20 +1,22 @@
 from invoke import task
 from invoke.exceptions import UnexpectedExit
 
-from .vars import package_name, boilerplate_branch
+from .vars import package_name
 
 DJANGO_PROJECT_NAME = "dev_project"
 
 
 @task
 def setup_dev(c):
+    host_ip = "0.0.0.0"
+    app_port = 6969
     c.run(
-        "APP_NAME={} ".format(package_name)
-        + "DJANGO_PROJECT={} ".format(DJANGO_PROJECT_NAME)
-        + "HOST_IP={} ".format("0.0.0.0")  # FIXME: is this dry?
-        + "APP_PORT={} ".format(6969)
-        + "docker-compose up --build"
-    )  # -- build
+        f"APP_NAME={package_name} "
+        f"DJANGO_PROJECT={DJANGO_PROJECT_NAME} "
+        f"HOST_IP={host_ip} "
+        f"APP_PORT={app_port} "
+        "docker-compose up --build"
+    )
 
 
 @task
