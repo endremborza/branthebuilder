@@ -1,16 +1,9 @@
 import glob
 import os
 
-import toml
 from invoke import task
 
-from .vars import doctest_notebooks_glob
-
-pytom = toml.load("pyproject.toml")
-package_name = pytom["project"]["name"]
-author_name = " - ".join(pytom["project"]["authors"])
-
-doc_dir_name = "docs"
+from .vars import doctest_notebooks_glob, package_name, author_name, doc_dir_name
 
 
 @task
