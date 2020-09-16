@@ -11,7 +11,7 @@ def setup(c):
     c.run("docker run -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube")
 
 
-@task(pre=[call(test, xml=True)])
+@task()
 def scan(c):
 
     with open(
