@@ -36,3 +36,4 @@ def scan(c):
 def kill(c):
     c.run("docker kill sonarqube")
     c.run("docker container rm sonarqube")
+    c.run(f"rm -rf {package_name}/.scannerwork")
