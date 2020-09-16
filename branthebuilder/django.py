@@ -23,24 +23,24 @@ def setup_dev(c):
 def clean(c):
 
     cleaning_commands = [
-        "docker exec -i {}_devcont_1 python /{}/manage.py dumpdata {} auth.user".format(
-            package_name, DJANGO_PROJECT_NAME, package_name
-        )
-        + " --indent=2 > dev_env/test_data/test_data_dump.json",
+        f"docker exec -i {package_name}_devcont_1 "
+        f"python /{DJANGO_PROJECT_NAME}/manage.py "
+        f"dumpdata {package_name} auth.user "
+        "--indent=2 > dev_env/test_data/test_data_dump.json",
         "docker exec -i {}_devcont_1 rm -rf /{}/{}/migrations".format(
             package_name, DJANGO_PROJECT_NAME, package_name
         ),
-        "docker kill {}_devcont_1".format(package_name),
-        "docker container rm {}_devcont_1".format(package_name),
-        "mkdir {}/migrations".format(package_name),
-        "touch {}/migrations/__init__.py".format(package_name),
+        f"docker kill {package_name}_devcont_1",
+        f"docker container rm {package_name}_devcont_1",
+        f"mkdir {package_name}/migrations",
+        f"touch {package_name}/migrations/__init__.py",
     ]
 
     for comm in cleaning_commands:
         try:
             c.run(comm)
         except UnexpectedExit:
-            print("command failed: {}".format(comm))
+            print(f"command failed: {comm}")
 
 
 @task
@@ -48,5 +48,6 @@ def nb(c):
 
     c.run(f"docker exec -i {package_name}_devcont_1 pip install jupyter")
     c.run(
-        f"docker exec -i {package_name}_devcont_1 python /{DJANGO_PROJECT_NAME}/manage.py shell_plus --notebook"
+        f"docker exec -i {package_name}_devcont_1 "
+        f"python /{DJANGO_PROJECT_NAME}/manage.py shell_plus --notebook"
     )

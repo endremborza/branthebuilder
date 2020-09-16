@@ -3,7 +3,12 @@ import os
 
 from invoke import task
 
-from .vars import doctest_notebooks_glob, package_name, author_name, doc_dir_name
+from .vars import (
+    author_name,
+    doc_dir_name,
+    doctest_notebooks_glob,
+    package_name,
+)
 
 
 @task

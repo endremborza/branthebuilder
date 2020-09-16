@@ -1,5 +1,4 @@
 from invoke import task
-from notebook.notebookapp import main
 
 from .vars import boilerplate_branch, package_name
 

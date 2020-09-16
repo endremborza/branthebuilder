@@ -1,9 +1,8 @@
 import os
 
-from invoke import task, call
+from invoke import task
 
 from .vars import package_name
-from .test import test
 
 
 @task
@@ -25,7 +24,8 @@ def scan(c):
     scan_command = (
         "docker run -e SONAR_HOST_URL=http://172.17.0.2:9000 "
         '--user="$(id -u):$(id -g)" '
-        f'-t -v "{os.getcwd()}/{package_name}:/usr/src" sonarsource/sonar-scanner-cli'
+        f'-t -v "{os.getcwd()}/{package_name}:/usr/src" '
+        "sonarsource/sonar-scanner-cli"
     )
     print(scan_command)
 
