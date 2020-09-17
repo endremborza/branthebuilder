@@ -28,7 +28,6 @@ def scan(c):
         "sonarsource/sonar-scanner-cli"
     )
     print(scan_command)
-
     c.run(scan_command)
 
 

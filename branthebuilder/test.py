@@ -11,7 +11,7 @@ from .vars import doctest_notebooks_glob, package_name
 @task
 def test(c, option="", html=False, xml=False, notebook_tests=True):
 
-    comm = f"python -m pytest --cov={package_name}"
+    comm = f"python -m pytest {package_name}"
     if option:
         comm += f" --{option}"
     if html:
