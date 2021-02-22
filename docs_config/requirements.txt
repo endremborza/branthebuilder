@@ -3,3 +3,4 @@ graphviz
 sphinx-automodapi
 pygments
 jupyter
+toml
