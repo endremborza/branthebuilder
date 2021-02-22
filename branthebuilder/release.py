@@ -23,7 +23,7 @@ def tag(c):
     branch = f.getvalue().strip()
     f.close()
 
-    if branch == "master":
+    if branch in ["master", "main"]:
         tag_version = f"v{version}"
         f2 = io.StringIO()
         c.run("git tag", out_stream=f2)
@@ -44,4 +44,4 @@ def tag(c):
         else:
             print(f"{tag_version} version already tagged")
     else:
-        print("only master branch can be tagged")
+        print("only master/main branch can be tagged")
