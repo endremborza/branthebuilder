@@ -41,7 +41,7 @@ def tag(c):
         fp.write(f"{tag_version}\n------\n\n" + notes)
     build(c)
     c.run("git add docs")
-    c.run(f"git commit -m for {tag_version}")
+    c.run(f'git commit -m "for {tag_version}"')
     c.run(f"git tag -a {tag_version} -m '{notes}'")
     with open(current_release_path, "w") as fp:
         fp.write("- points of whats new")
