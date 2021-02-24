@@ -14,10 +14,13 @@ from .vars import (
 @task
 def build(c):
 
-    c.run(
-        f"sphinx-quickstart {doc_dir_name} -p {package_name} "
-        f'-a "{author_name}" -q --ext-autodoc'
-    )
+    try:
+        c.run(
+            f"sphinx-quickstart {doc_dir_name} -p {package_name} "
+            f'-a "{author_name}" -q --ext-autodoc'
+        )
+    except Exception as e:
+        print(f"Quickstart failed with {type(e)}: {e}")
 
     doc_notebooks = sorted(glob.glob(doctest_notebooks_glob))
     _doc_nbs_string = " ".join(doc_notebooks)
