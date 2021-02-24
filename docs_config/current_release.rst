@@ -1,1 +1,1 @@
-- fix release task
+- fix docs regeneration
