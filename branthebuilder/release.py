@@ -2,6 +2,7 @@ import io
 
 from invoke import task
 
+from .docs import build
 from .vars import mymodule
 
 version = mymodule.__version__
@@ -23,25 +24,25 @@ def tag(c):
     branch = f.getvalue().strip()
     f.close()
 
-    if branch in ["master", "main"]:
-        tag_version = f"v{version}"
-        f2 = io.StringIO()
-        c.run("git tag", out_stream=f2)
-        tags = f2.getvalue().split()
-        print(tags)
-        if tag_version not in tags:
-            current_release_path = "docs_config/current_release.rst"
-            with open(current_release_path) as fp:
-                notes = fp.read()
-            with open(
-                f"docs_config/release_notes/{tag_version}.rst", "w"
-            ) as fp:
-                fp.write(notes)
-            c.run(f"git tag -a {tag_version} -m '{notes}'")
-            with open(current_release_path, "w") as fp:
-                fp.write("")
-            c.run("git push --tags")
-        else:
-            print(f"{tag_version} version already tagged")
-    else:
+    if branch not in ["master", "main"]:
         print("only master/main branch can be tagged")
+        return
+    tag_version = f"v{version}"
+    f2 = io.StringIO()
+    c.run("git tag", out_stream=f2)
+    tags = f2.getvalue().split()
+    if tag_version in tags:
+        print(f"{tag_version} version already tagged")
+        return
+    current_release_path = "docs_config/current_release.rst"
+    with open(current_release_path) as fp:
+        notes = fp.read()
+    with open(f"docs_config/release_notes/{tag_version}.rst", "w") as fp:
+        fp.write(f"{tag_version}\n------\n\n" + notes)
+    build(c)
+    c.run("git add docs")
+    c.run(f"git commit -m for {tag_version}")
+    c.run(f"git tag -a {tag_version} -m '{notes}'")
+    with open(current_release_path, "w") as fp:
+        fp.write("- points of whats new")
+    c.run("git push --tags")
