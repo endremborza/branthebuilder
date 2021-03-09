@@ -18,6 +18,8 @@ def test(c, option="", html=False, xml=False, notebook_tests=True):
         comm += " --cov-report=html"
     elif xml:
         comm += f" --cov-report=xml:{package_name}/coverage.xml"
+    else:
+        comm += f" --cov={package_name}"
 
     if notebook_tests:
         new_test_scripts = []

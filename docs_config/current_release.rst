@@ -1,1 +1,1 @@
-- fix docs regeneration
+- add coverage to test
