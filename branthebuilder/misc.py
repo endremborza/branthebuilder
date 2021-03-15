@@ -1,6 +1,6 @@
 from invoke import task
 
-from .vars import boilerplate_branch, package_name
+from .vars import boilerplate_branch, package_name, pytom
 
 
 @task
@@ -12,6 +12,14 @@ def lint(c):
 
 @task
 def update_boilerplate(c):  # TODO: maybe drop template package folder
+
+    ck_context = {
+        "full_name": pytom["project"]["authors"][0],
+        "github_user": pytom["project"]["url"].split("/")[-2],
+        "project_name": pytom["project"]["name"],
+        "python_version": pytom["project"]["python"][2:],
+    }
+
     c.run("git fetch boilerplate")
     c.run(f"git merge boilerplate/{boilerplate_branch} --no-edit")
 

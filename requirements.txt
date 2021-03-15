@@ -11,3 +11,4 @@ toml
 flake8
 isort
 pandoc
+cookiecutter
