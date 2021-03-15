@@ -1,5 +1,9 @@
+import io
+
+from cookiecutter.main import cookiecutter
 from invoke import task
 
+from .constants import cc_repo
 from .vars import boilerplate_branch, package_name, pytom
 
 
@@ -13,15 +17,28 @@ def lint(c):
 @task
 def update_boilerplate(c):  # TODO: maybe drop template package folder
 
-    ck_context = {
+    cc_context = {
         "full_name": pytom["project"]["authors"][0],
         "github_user": pytom["project"]["url"].split("/")[-2],
         "project_name": pytom["project"]["name"],
         "python_version": pytom["project"]["python"][2:],
     }
 
-    c.run("git fetch boilerplate")
-    c.run(f"git merge boilerplate/{boilerplate_branch} --no-edit")
+    f = io.StringIO()
+    c.run("git rev-parse --abbrev-ref HEAD", out_stream=f)
+    branch = f.getvalue().strip()
+    c.run("git checkout template")
+    cookiecutter(
+        cc_repo,
+        no_input=True,
+        extra_context=cc_context,
+        output_dir="..",
+        overwrite_if_exists=True,
+    )
+    c.run("git add *")
+    c.run('git commit -m "update-boilerplate"')
+    c.run(f"git checkout {branch}")
+    c.run(f"git merge template --no-edit")
 
 
 @task

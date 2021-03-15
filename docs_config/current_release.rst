@@ -1,1 +1,2 @@
-- add coverage to test
+- move to cookiecutter
+- add main

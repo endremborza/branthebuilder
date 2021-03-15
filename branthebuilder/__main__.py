@@ -2,7 +2,7 @@ import subprocess
 
 from cookiecutter.main import cookiecutter
 
-from .vars import cc_repo
+from .constants import cc_repo
 
 if __name__ == "__main__":
     res_dir = cookiecutter(cc_repo)
