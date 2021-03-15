@@ -4,7 +4,7 @@ from cookiecutter.main import cookiecutter
 from invoke import task
 
 from .constants import cc_repo
-from .vars import boilerplate_branch, package_name, pytom
+from .vars import package_name, pytom
 
 
 @task
@@ -38,7 +38,7 @@ def update_boilerplate(c):  # TODO: maybe drop template package folder
     c.run("git add *")
     c.run('git commit -m "update-boilerplate"')
     c.run(f"git checkout {branch}")
-    c.run(f"git merge template --no-edit")
+    c.run("git merge template --no-edit")
 
 
 @task
