@@ -1,2 +1,1 @@
-- move to cookiecutter
-- add main
+- update tests
