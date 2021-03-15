@@ -1,10 +1,10 @@
-Installation:
-=============
+Installation
+============
 
 ``pip install branthebuilder``
 
-Available tasks:
-================
+Available tasks
+===============
 
 -  clean.clean
 -  clean.prune
@@ -12,6 +12,8 @@ Available tasks:
 -  django.nb
 -  django.setup-dev
 -  docs.build
+-  docs.purge
+-  docs.setup
 -  misc.lint
 -  misc.notebook
 -  misc.update-boilerplate
