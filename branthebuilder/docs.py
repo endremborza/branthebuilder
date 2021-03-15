@@ -12,15 +12,20 @@ from .vars import (
 
 
 @task
+def setup(c):
+    c.run(
+        f"sphinx-quickstart {doc_dir_name} -p {package_name} "
+        f'-a "{author_name}" -q --ext-autodoc'
+    )
+    c.run("cp -r docs_config/* docs/")
+    c.run("rm docs/current_release.rst")
+    c.run("pip install -r docs/requirements.txt")
+
+
+@task
 def build(c):
 
-    try:
-        c.run(
-            f"sphinx-quickstart {doc_dir_name} -p {package_name} "
-            f'-a "{author_name}" -q --ext-autodoc'
-        )
-    except Exception as e:
-        print(f"Quickstart failed with {type(e)}: {e}")
+    c.run("cp -r docs_config/release_notes docs/")
 
     doc_notebooks = sorted(glob.glob(doctest_notebooks_glob))
     _doc_nbs_string = " ".join(doc_notebooks)
@@ -67,6 +72,4 @@ API
     with open(os.path.join(doc_dir_name, "autosumm.rst"), "w") as fp:
         fp.write(autosumm_rst)
 
-    c.run("cp -r docs_config/* docs/")
-    c.run("pip install -r docs/requirements.txt")
     c.run("sphinx-build docs docs/_build")

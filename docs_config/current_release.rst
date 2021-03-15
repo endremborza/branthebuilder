@@ -1,2 +1,1 @@
-- update-boilerplate
-- bit more careful boilerplate update
+- update docs
