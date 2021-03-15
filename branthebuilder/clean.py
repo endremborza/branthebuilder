@@ -8,26 +8,19 @@ from .vars import package_name
 @task
 def clean(
     c,
-    docs=False,
     build=False,
-    bytecode=False,
     test=False,
     sonar=False,
-    everything=False,
 ):
     patterns = []
-    if docs or everything:
-        patterns.append("docs")
-    if build or everything:
-        patterns += ["build", f"{package_name}.egg-info"]
-    if bytecode or everything:
-        patterns.append("**/*.pyc")
-    if sonar or everything:
+    if build:
+        patterns += ["build", f"{package_name}.egg-info", "**/*.pyc"]
+    if sonar:
         patterns += [
             os.path.join(package_name, s)
             for s in [".sonar", ".scannerwork", "sonar-project.properties"]
         ]
-    if test or everything:
+    if test:
         patterns += [
             ".pytest_cache",
             ".coverage",
@@ -42,4 +35,4 @@ def clean(
 
 @task
 def prune(c):
-    clean(c, everything=True)
+    clean(c, True, True, True)
