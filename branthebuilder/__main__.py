@@ -14,6 +14,7 @@ if __name__ == "__main__":
     )
     subprocess.check_call(["git", "branch", "template"], cwd=res_dir)
     prec_hook = os.path.join(res_dir, ".git", "hooks", "pre-commit")
+    msg_hook = os.path.join(res_dir, ".git", "hooks", "commit-msg")
     with open(prec_hook, "w") as fp:
         fp.write("#!/bin/sh\n")
         fp.write("inv misc.lint --add")
