@@ -12,3 +12,4 @@ doctest_notebooks_glob = "notebooks/doc-*.ipynb"
 mymodule = importlib.import_module(package_name)
 
 boilerplate_branch = pytom["project"]["boilerplate_branch"]
+cc_repo = "https://github.com/endremborza/python-boilerplate-v2"

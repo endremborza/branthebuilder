@@ -2,8 +2,7 @@ import subprocess
 
 from cookiecutter.main import cookiecutter
 
-cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
-
+from .vars import cc_repo
 
 if __name__ == "__main__":
     res_dir = cookiecutter(cc_repo)
