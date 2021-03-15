@@ -43,5 +43,5 @@ def tag(c):
     c.run(f'git commit -m "for {tag_version}"')
     c.run(f"git tag -a {tag_version} -m '{notes}'")
     with open(current_release_path, "w") as fp:
-        fp.write("- points of whats new")
+        fp.write("")
     c.run("git push --tags")
