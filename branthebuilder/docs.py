@@ -25,7 +25,7 @@ def setup(c):
 @task
 def build(c):
 
-    c.run("cp -r docs_config/release_notes docs/")
+    c.run("cp -r docs_config/release_notes/* docs/release_notes")
 
     doc_notebooks = sorted(glob.glob(doctest_notebooks_glob))
     _doc_nbs_string = " ".join(doc_notebooks)
@@ -46,8 +46,8 @@ Welcome to {package_name}'s documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   autosumm
 {_toc_nb_lines}
+   autosumm
    release_notes/main
 
 Indices and tables
