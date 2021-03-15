@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from cookiecutter.main import cookiecutter
@@ -12,3 +13,12 @@ if __name__ == "__main__":
         ["git", "commit", "-m", "setup using template"], cwd=res_dir
     )
     subprocess.check_call(["git", "branch", "template"], cwd=res_dir)
+    prec_hook = os.path.join(res_dir, ".git", "hooks", "pre-commit")
+    with open(prec_hook, "w") as fp:
+        fp.write("#!/bin/sh\n")
+        fp.write("inv misc.lint --add")
+
+    try:
+        subprocess.check_call(["chmod", "+x", prec_hook])
+    finally:
+        pass
