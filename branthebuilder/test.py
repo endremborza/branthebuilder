@@ -3,23 +3,24 @@ import json
 import os
 
 from invoke import task
-from invoke.exceptions import UnexpectedExit
 
 from .vars import doctest_notebooks_glob, package_name
+
+test_root = os.path.join(package_name, "tests")
+test_notebook_path = os.path.join(test_root, "test_nb_integrations.py")
+cov_xmlpath = f"{package_name}/coverage.xml"
 
 
 @task
 def test(c, option="", html=False, xml=False, notebook_tests=True):
 
-    comm = f"python -m pytest {package_name}"
+    comm = f"python -m pytest {package_name} --cov={package_name}"
     if option:
         comm += f" --{option}"
     if html:
         comm += " --cov-report=html"
     elif xml:
-        comm += f" --cov-report=xml:{package_name}/coverage.xml"
-    else:
-        comm += f" --cov={package_name}"
+        comm += f" --cov-report=xml:{cov_xmlpath}"
 
     if notebook_tests:
         new_test_scripts = []
@@ -38,15 +39,21 @@ def test(c, option="", html=False, xml=False, notebook_tests=True):
                     + "\n".join([f"    {s}" for s in nb_code.split("\n")])
                 )
 
-        test_root = os.path.join(package_name, "tests")
         if not os.path.exists(test_root):
             os.makedirs(test_root)
 
-        test_notebook_path = os.path.join(test_root, "test_nb_integrations.py")
         with open(test_notebook_path, "w") as fp:
             fp.write("\n\n".join(new_test_scripts))
 
     try:
         c.run(comm)
-    except UnexpectedExit:
+    finally:
         c.run(f"rm {package_name}/tests/test_nb_integrations.py")
+
+
+@task
+def clean(c):
+    c.run(f"rm -f {cov_xmlpath}")
+    c.run("rm -rf htmlcov")
+    c.run("rm -rf .pytest_cache")
+    c.run("rm -f .coverage")
