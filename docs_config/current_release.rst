@@ -1,2 +1,3 @@
 - update tests a bit
 - comm-msg
+- fix comm-msg
