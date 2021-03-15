@@ -31,12 +31,13 @@ def lint(c, add=False):
 
 
 @task
-def update_boilerplate(c):  # TODO: maybe drop template package folder
+def update_boilerplate(c, merge=False):
 
     cc_context = {
         "full_name": pytom["project"]["authors"][0],
         "github_user": pytom["project"]["url"].split("/")[-2],
         "project_name": pytom["project"]["name"],
+        "description": pytom["project"]["description"],
         "python_version": pytom["project"]["python"][2:],
     }
 
@@ -53,8 +54,9 @@ def update_boilerplate(c):  # TODO: maybe drop template package folder
     )
     c.run("git add *")
     c.run('git commit -m "update-boilerplate"')
-    c.run(f"git checkout {branch}")
-    c.run("git merge template --no-edit")
+    if merge:
+        c.run(f"git checkout {branch}")
+        c.run("git merge template --no-edit")
 
 
 @task
