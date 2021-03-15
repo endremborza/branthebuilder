@@ -7,4 +7,5 @@
 
 invoke tasks for python boilerplate
 
-make a new project based on the template with `python -m branthebuilder`
+make a new project based on the template with `python -m branthebuilder` - this adds git hooks pre-commit and commit-msg
+
