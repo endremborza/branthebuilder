@@ -27,9 +27,9 @@ def tag(c):
         print("only master/main branch can be tagged")
         return
     tag_version = f"v{version}"
-    f2 = io.StringIO()
-    c.run("git tag", out_stream=f2)
-    tags = f2.getvalue().split()
+    with io.StringIO() as f2:
+        c.run("git tag", out_stream=f2)
+        tags = f2.getvalue().split()
     if tag_version in tags:
         print(f"{tag_version} version already tagged")
         return
@@ -40,7 +40,7 @@ def tag(c):
         fp.write(f"{tag_version}\n------\n\n" + notes)
     build(c)
     c.run("git add docs docs_config")
-    c.run(f'git commit -m "for {tag_version}"')
+    c.run(f'git commit -m "docs for {tag_version}"')
     c.run(f"git tag -a {tag_version} -m '{notes}'")
     with open(current_release_path, "w") as fp:
         fp.write("")
