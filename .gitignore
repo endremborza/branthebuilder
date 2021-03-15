@@ -129,3 +129,5 @@ dmypy.json
 .scannerwork
 .sonar
 sonar-project.properties
+
+dask-worker-space/
