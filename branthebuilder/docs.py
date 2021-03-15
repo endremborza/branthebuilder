@@ -73,3 +73,8 @@ API
         fp.write(autosumm_rst)
 
     c.run("sphinx-build docs docs/_build")
+
+
+@task
+def purge(c):
+    c.run("rm -rf docs")
