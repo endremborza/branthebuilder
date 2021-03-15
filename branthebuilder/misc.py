@@ -1,4 +1,5 @@
 import io
+import re
 
 from cookiecutter.main import cookiecutter
 from invoke import task
@@ -9,9 +10,22 @@ from .vars import package_name, pytom
 
 @task
 def lint(c):
-    c.run(r"black . -l 79 --exclude \.*venv")
-    c.run(f"isort {package_name} -m 3 --tc")
+    # this should be added to pre-commit hook
+    with io.StringIO() as f:
+        c.run(r"black . -l 79 --exclude \.*venv --exclude data", err_stream=f)
+        blackout = f.getvalue().strip()
+
+    with io.StringIO() as f:
+        c.run(f"isort {package_name} -m 3 --tc", out_stream=f)
+        isout = f.getvalue().strip()
+
     c.run(f"flake8 {package_name}")
+
+    fixed_files = re.compile("reformatted (.*)").findall(
+        blackout
+    ) + re.compile("Fixing (.*)").findall(isout)
+    if fixed_files:
+        c.run(f"git add {' '.join(set(fixed_files))}")
 
 
 @task
@@ -24,9 +38,9 @@ def update_boilerplate(c):  # TODO: maybe drop template package folder
         "python_version": pytom["project"]["python"][2:],
     }
 
-    f = io.StringIO()
-    c.run("git rev-parse --abbrev-ref HEAD", out_stream=f)
-    branch = f.getvalue().strip()
+    with io.StringIO() as f:
+        c.run("git rev-parse --abbrev-ref HEAD", out_stream=f)
+        branch = f.getvalue().strip()
     c.run("git checkout template")
     cookiecutter(
         cc_repo,
