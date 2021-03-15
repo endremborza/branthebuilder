@@ -19,6 +19,10 @@ if __name__ == "__main__":
         fp.write("#!/bin/sh\n")
         fp.write("inv misc.lint --add")
 
+    with open(msg_hook, "w") as fp:
+        fp.write("#!/bin/sh\n")
+        fp.write('echo "- `cat $1`" >> docs_config/current_release.rst')
+
     try:
         subprocess.check_call(["chmod", "+x", prec_hook])
     finally:
