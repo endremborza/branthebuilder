@@ -20,7 +20,7 @@ def new(c):
 @task
 def tag(c):
     with io.StringIO() as f:
-        c.run('git rev-parse --abbrev-ref HEAD', out_stream=f)
+        c.run("git rev-parse --abbrev-ref HEAD", out_stream=f)
         branch = f.getvalue().strip()
 
     if branch not in ["master", "main"]:

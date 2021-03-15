@@ -1,4 +1,13 @@
-from branthebuilder import __version__
+from branthebuilder import (
+    __version__,
+    clean,
+    django,
+    docs,
+    misc,
+    release,
+    sonar,
+    test,
+)
 
 
 def test_import():
@@ -6,4 +15,5 @@ def test_import():
 
 
 def test_modules():
-    from branthebuilder import clean, django, docs, misc, release, sonar, test
+    for m in [clean, django, docs, misc, release, sonar, test]:
+        assert callable(m.task)
