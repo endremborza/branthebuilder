@@ -1,2 +1,2 @@
-- update tests a bit
-- precommit hooks
+- update-boilerplate
+- bit more careful boilerplate update

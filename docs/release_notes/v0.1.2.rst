@@ -1,2 +1,5 @@
+v0.1.2
+------
+
 - update-boilerplate
 - bit more careful boilerplate update
