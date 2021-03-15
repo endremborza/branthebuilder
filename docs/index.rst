@@ -6,8 +6,8 @@ Welcome to branthebuilder's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   autosumm
    notebooks/doc-000-intro
+   autosumm
    release_notes/main
 
 Indices and tables
