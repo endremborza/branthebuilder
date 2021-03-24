@@ -44,4 +44,5 @@ def tag(c):
     c.run(f"git tag -a {tag_version} -m '{notes}'")
     with open(current_release_path, "w") as fp:
         fp.write("")
+    c.run("git push")
     c.run("git push --tags")
