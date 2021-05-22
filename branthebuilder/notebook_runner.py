@@ -7,6 +7,6 @@ class SysInsertManager(KernelSpecManager):
         init_resp.argv = [
             *init_resp.argv,
             "--IPKernelApp.exec_lines=['import sys', "
-            """'sys.path.append("..")']""",
+            """'sys.path.insert(0, "..")']""",
         ]
         return init_resp
