@@ -10,7 +10,7 @@ from .vars import package_name, pytom
 
 @task
 def lint(c, add=False):
-    # this should be added to pre-commit hook
+
     with io.StringIO() as f:
         c.run(
             r"black . -l 79 --exclude \.*venv --exclude ./data", err_stream=f
@@ -29,7 +29,7 @@ def lint(c, add=False):
     if add and fixed_files:
         c.run(f"git add {' '.join(set(fixed_files))}")
     else:
-        print(fixed_files)
+        print("fixed files: \n", "\n".join(fixed_files))
 
 
 @task
