@@ -24,6 +24,7 @@ if __name__ == "__main__":
         fp.write('echo "- `cat $1`" >> docs_config/current_release.rst')
 
     try:
-        subprocess.check_call(["chmod", "+x", prec_hook])
+        for hook in [prec_hook, msg_hook]:
+            subprocess.check_call(["chmod", "+x", hook])
     finally:
         pass
