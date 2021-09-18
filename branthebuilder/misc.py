@@ -12,9 +12,7 @@ from .vars import package_name, pytom
 def lint(c, add=False):
 
     with io.StringIO() as f:
-        c.run(
-            r"black . -l 79 --exclude \.*venv --exclude ./data", err_stream=f
-        )
+        c.run(r"black . --exclude \.*venv --exclude ./data", err_stream=f)
         blackout = f.getvalue().strip()
 
     with io.StringIO() as f:
