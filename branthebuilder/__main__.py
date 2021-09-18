@@ -21,7 +21,7 @@ if __name__ == "__main__":
         subprocess.check_call(cmd, cwd=res_dir)
     prec_hook = Path(res_dir, ".git", "hooks", "pre-commit")
     msg_hook = Path(res_dir, ".git", "hooks", "commit-msg")
-    write_command(prec_hook, "inv misc.lint --add")
+    write_command(prec_hook, "inv lint --add")
     write_command(
         msg_hook, 'echo "- `cat $1`" >> docs_config/current_release.rst'
     )
