@@ -4,6 +4,7 @@ import os
 
 from invoke import task
 
+from .misc import lint
 from .vars import doctest_notebooks_glob, package_name
 
 test_root = os.path.join(package_name, "tests")
@@ -30,14 +31,17 @@ def _get_nb_scripts():
     return new_test_scripts
 
 
-@task
-def test(c, html=False, xml=False, notebook_tests=True):
+@task(pre=[lint])
+def test(c, html=False, xml=False, v=False, notebook_tests=True):
 
     comm = f"python -m pytest {package_name} --cov={package_name}"
     if html:
         comm += " --cov-report=html"
     elif xml:
         comm += f" --cov-report=xml:{cov_xmlpath}"
+
+    if v:
+        comm += " -s"
 
     if notebook_tests:
         if not os.path.exists(test_root):
@@ -50,11 +54,3 @@ def test(c, html=False, xml=False, notebook_tests=True):
         c.run(comm)
     finally:
         c.run(f"rm {package_name}/tests/test_nb_integrations.py")
-
-
-@task
-def clean(c):
-    c.run(f"rm -f {cov_xmlpath}")
-    c.run("rm -rf htmlcov")
-    c.run("rm -rf .pytest_cache")
-    c.run("rm -f .coverage")

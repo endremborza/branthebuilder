@@ -1,30 +1,30 @@
-import os
 import subprocess
+from pathlib import Path
 
 from cookiecutter.main import cookiecutter
 
 from .constants import cc_repo
 
+
+def write_command(path, cmd):
+    path.write_text("\n".join(["#!/bin/sh", cmd]))
+
+
 if __name__ == "__main__":
     res_dir = cookiecutter(cc_repo)
-    subprocess.check_call(["git", "init"], cwd=res_dir)
-    subprocess.check_call(["git", "add", "*"], cwd=res_dir)
-    subprocess.check_call(
-        ["git", "commit", "-m", "setup using template"], cwd=res_dir
+    for cmd in [
+        ["git", "init"],
+        ["git", "add", "*"],
+        ["git", "commit", "-m", "setup using template"],
+        ["git", "branch", "template"],
+    ]:
+        subprocess.check_call(cmd, cwd=res_dir)
+    prec_hook = Path(res_dir, ".git", "hooks", "pre-commit")
+    msg_hook = Path(res_dir, ".git", "hooks", "commit-msg")
+    write_command(prec_hook, "inv lint --add")
+    write_command(
+        msg_hook, 'echo "- `cat $1`" >> docs_config/current_release.rst'
     )
-    subprocess.check_call(["git", "branch", "template"], cwd=res_dir)
-    prec_hook = os.path.join(res_dir, ".git", "hooks", "pre-commit")
-    msg_hook = os.path.join(res_dir, ".git", "hooks", "commit-msg")
-    with open(prec_hook, "w") as fp:
-        fp.write("#!/bin/sh\n")
-        fp.write("inv misc.lint --add")
 
-    with open(msg_hook, "w") as fp:
-        fp.write("#!/bin/sh\n")
-        fp.write('echo "- `cat $1`" >> docs_config/current_release.rst')
-
-    try:
-        for hook in [prec_hook, msg_hook]:
-            subprocess.check_call(["chmod", "+x", hook])
-    finally:
-        pass
+    for hook in [prec_hook, msg_hook]:
+        subprocess.check_call(["chmod", "+x", hook.as_posix()])

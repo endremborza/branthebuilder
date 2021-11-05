@@ -3,18 +3,15 @@ import io
 from invoke import task
 
 from .docs import build
-from .vars import mymodule
-
-version = mymodule.__version__
+from .vars import get_version
 
 
 @task
 def new(c):
+    v = get_version()
     c.run("python setup.py sdist")
     c.run("twine check dist/*")
-    c.run(
-        f"twine upload dist/*{version}.tar.gz -u __token__ -p $TWINE_PASSWORD"
-    )
+    c.run(f"twine upload dist/*{v}.tar.gz -u __token__ -p $TWINE_PASSWORD")
 
 
 @task
@@ -26,7 +23,7 @@ def tag(c):
     if branch not in ["master", "main"]:
         print("only master/main branch can be tagged")
         return
-    tag_version = f"v{version}"
+    tag_version = f"v{get_version()}"
     with io.StringIO() as f2:
         c.run("git tag", out_stream=f2)
         tags = f2.getvalue().split()

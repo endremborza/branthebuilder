@@ -34,5 +34,5 @@ def clean(
 
 
 @task
-def prune(c):
+def purge(c):
     clean(c, True, True, True)

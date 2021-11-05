@@ -5,23 +5,24 @@ from cookiecutter.main import cookiecutter
 from invoke import task
 
 from .constants import cc_repo
-from .vars import package_name, pytom
+from .vars import LINE_LENGTH, package_name, pytom
 
 
 @task
 def lint(c, add=False):
 
     with io.StringIO() as f:
-        c.run(
-            r"black . -l 79 --exclude \.*venv --exclude ./data", err_stream=f
-        )
+        c.run(f"black {package_name} -l {LINE_LENGTH}", err_stream=f)
         blackout = f.getvalue().strip()
 
     with io.StringIO() as f:
-        c.run(f"isort {package_name} -m 3 --tc", out_stream=f)
+        c.run(
+            f"isort {package_name} --profile black -l {LINE_LENGTH}",
+            out_stream=f,
+        )
         isout = f.getvalue().strip()
 
-    c.run(f"flake8 {package_name}")
+    c.run(f"flake8 {package_name} --max-line-length {LINE_LENGTH}")
 
     fixed_files = re.compile("reformatted (.*)").findall(
         blackout
