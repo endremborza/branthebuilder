@@ -9,6 +9,9 @@ author_name = " - ".join(pytom["project"]["authors"])
 doc_dir_name = "docs"
 doctest_notebooks_glob = "notebooks/doc-*.ipynb"
 
-mymodule = importlib.import_module(package_name)
 
-boilerplate_branch = pytom["project"]["boilerplate_branch"]
+def get_version():
+    return importlib.import_module(package_name).__version__
+
+
+LINE_LENGTH = pytom["tool"]["bran"]["line-length"]

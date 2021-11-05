@@ -1,1 +1,6 @@
-- cleanup lint task
+- expand +x in creation
+- add namespace
+- refactor main
+- moved line length to toml
+- move exclude pattern
+- change lint namespace
