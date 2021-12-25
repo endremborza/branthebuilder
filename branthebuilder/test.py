@@ -5,11 +5,7 @@ import os
 from invoke import task
 
 from .misc import lint
-from .vars import doctest_notebooks_glob, package_name
-
-test_root = os.path.join(package_name, "tests")
-test_notebook_path = os.path.join(test_root, "test_nb_integrations.py")
-cov_xmlpath = f"{package_name}/coverage.xml"
+from .vars import conf, doctest_notebooks_glob
 
 
 def _get_nb_scripts():
@@ -34,7 +30,11 @@ def _get_nb_scripts():
 @task(pre=[lint])
 def test(c, html=False, xml=False, v=False, notebook_tests=True):
 
-    comm = f"python -m pytest {package_name} --cov={package_name}"
+    test_root = os.path.join(conf.name, "tests")
+    test_notebook_path = os.path.join(test_root, "test_nb_integrations.py")
+    cov_xmlpath = f"{conf.name}/coverage.xml"
+
+    comm = f"python -m pytest {conf.name} --cov={conf.name}"
     if html:
         comm += " --cov-report=html"
     elif xml:
@@ -53,4 +53,4 @@ def test(c, html=False, xml=False, v=False, notebook_tests=True):
     try:
         c.run(comm)
     finally:
-        c.run(f"rm {package_name}/tests/test_nb_integrations.py")
+        c.run(f"rm {conf.name}/tests/test_nb_integrations.py")

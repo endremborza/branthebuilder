@@ -5,24 +5,24 @@ from cookiecutter.main import cookiecutter
 from invoke import task
 
 from .constants import cc_repo
-from .vars import LINE_LENGTH, package_name, pytom
+from .vars import conf
 
 
 @task
 def lint(c, add=False):
 
     with io.StringIO() as f:
-        c.run(f"black {package_name} -l {LINE_LENGTH}", err_stream=f)
+        c.run(f"black {conf.name} -l {conf.line_len}", err_stream=f)
         blackout = f.getvalue().strip()
 
     with io.StringIO() as f:
         c.run(
-            f"isort {package_name} --profile black -l {LINE_LENGTH}",
+            f"isort {conf.name} --profile black -l {conf.line_len}",
             out_stream=f,
         )
         isout = f.getvalue().strip()
 
-    c.run(f"flake8 {package_name} --max-line-length {LINE_LENGTH}")
+    c.run(f"flake8 {conf.name} --max-line-length {conf.line_len}")
 
     fixed_files = re.compile("reformatted (.*)").findall(
         blackout
@@ -37,11 +37,11 @@ def lint(c, add=False):
 def update_boilerplate(c, merge=False):
 
     cc_context = {
-        "full_name": pytom["project"]["authors"][0],
-        "github_user": pytom["project"]["url"].split("/")[-2],
-        "project_name": pytom["project"]["name"],
-        "description": pytom["project"]["description"],
-        "python_version": pytom["project"]["python"][2:],
+        "full_name": conf.project_conf["authors"][0],
+        "github_user": conf.project_conf["url"].split("/")[-2],
+        "project_name": conf.project_conf["name"],
+        "description": conf.project_conf["description"],
+        "python_version": conf.project_conf["python"][2:],
     }
 
     with io.StringIO() as f:

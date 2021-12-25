@@ -1,7 +1,7 @@
 from invoke import task
 from invoke.exceptions import UnexpectedExit
 
-from .vars import package_name
+from .vars import conf
 
 DJANGO_PROJECT_NAME = "dev_project"
 
@@ -11,7 +11,7 @@ def setup_dev(c):
     host_ip = "0.0.0.0"
     app_port = 6969
     c.run(
-        f"APP_NAME={package_name} "
+        f"APP_NAME={conf.name} "
         f"DJANGO_PROJECT={DJANGO_PROJECT_NAME} "
         f"HOST_IP={host_ip} "
         f"APP_PORT={app_port} "
@@ -23,17 +23,17 @@ def setup_dev(c):
 def clean(c):
 
     cleaning_commands = [
-        f"docker exec -i {package_name}_devcont_1 "
+        f"docker exec -i {conf.name}_devcont_1 "
         f"python /{DJANGO_PROJECT_NAME}/manage.py "
-        f"dumpdata {package_name} auth.user "
+        f"dumpdata {conf.name} auth.user "
         "--indent=2 > dev_env/test_data/test_data_dump.json",
         "docker exec -i {}_devcont_1 rm -rf /{}/{}/migrations".format(
-            package_name, DJANGO_PROJECT_NAME, package_name
+            conf.name, DJANGO_PROJECT_NAME, conf.name
         ),
-        f"docker kill {package_name}_devcont_1",
-        f"docker container rm {package_name}_devcont_1",
-        f"mkdir {package_name}/migrations",
-        f"touch {package_name}/migrations/__init__.py",
+        f"docker kill {conf.name}_devcont_1",
+        f"docker container rm {conf.name}_devcont_1",
+        f"mkdir {conf.name}/migrations",
+        f"touch {conf.name}/migrations/__init__.py",
     ]
 
     for comm in cleaning_commands:
@@ -46,8 +46,8 @@ def clean(c):
 @task
 def nb(c):
 
-    c.run(f"docker exec -i {package_name}_devcont_1 pip install jupyter")
+    c.run(f"docker exec -i {conf.name}_devcont_1 pip install jupyter")
     c.run(
-        f"docker exec -i {package_name}_devcont_1 "
+        f"docker exec -i {conf.name}_devcont_1 "
         f"python /{DJANGO_PROJECT_NAME}/manage.py shell_plus --notebook"
     )

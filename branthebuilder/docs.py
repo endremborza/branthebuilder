@@ -3,19 +3,14 @@ import os
 
 from invoke import task
 
-from .vars import (
-    author_name,
-    doc_dir_name,
-    doctest_notebooks_glob,
-    package_name,
-)
+from .vars import conf, doc_dir_name, doctest_notebooks_glob
 
 
 @task
 def setup(c):
     c.run(
-        f"sphinx-quickstart {doc_dir_name} -p {package_name} "
-        f'-a "{author_name}" -q --ext-autodoc'
+        f"sphinx-quickstart {doc_dir_name} -p {conf.name} "
+        f'-a "{conf.author}" -q --ext-autodoc'
     )
     c.run("cp -r docs_config/* docs/")
     c.run("rm docs/current_release.rst")
@@ -39,7 +34,7 @@ def build(c):
     ]
     _toc_nb_lines = "\n".join(toc_nbs)
     index_rst = f"""
-Welcome to {package_name}'s documentation!
+Welcome to {conf.name}'s documentation!
 =====================================================================================
 
 .. toctree::
@@ -62,7 +57,7 @@ Indices and tables
 API
 ===
 
-.. automodapi:: {package_name}
+.. automodapi:: {conf.name}
 
 """
 

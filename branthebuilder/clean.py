@@ -2,7 +2,7 @@ import os
 
 from invoke import task
 
-from .vars import package_name
+from .vars import conf
 
 
 @task
@@ -14,10 +14,10 @@ def clean(
 ):
     patterns = []
     if build:
-        patterns += ["build", f"{package_name}.egg-info", "**/*.pyc"]
+        patterns += ["build", f"{conf.name}.egg-info", "**/*.pyc"]
     if sonar:
         patterns += [
-            os.path.join(package_name, s)
+            os.path.join(conf.name, s)
             for s in [".sonar", ".scannerwork", "sonar-project.properties"]
         ]
     if test:

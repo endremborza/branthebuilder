@@ -2,7 +2,7 @@ import os
 
 from invoke import task
 
-from .vars import package_name
+from .vars import conf
 
 
 @task
@@ -13,18 +13,16 @@ def setup(c):
 @task()
 def scan(c):
 
-    with open(
-        os.path.join(package_name, "sonar-project.properties"), "w"
-    ) as fp:
+    with open(os.path.join(conf.name, "sonar-project.properties"), "w") as fp:
         fp.write(
             "sonar.projectKey={}\n"
             "sonar.python.coverage.reportPaths=coverage.xml\n"
-            "sonar.scm.disabled=true".format(package_name)
+            "sonar.scm.disabled=true".format(conf.name)
         )
     scan_command = (
         "docker run -e SONAR_HOST_URL=http://172.17.0.2:9000 "
         '--user="$(id -u):$(id -g)" '
-        f'-t -v "{os.getcwd()}/{package_name}:/usr/src" '
+        f'-t -v "{os.getcwd()}/{conf.name}:/usr/src" '
         "sonarsource/sonar-scanner-cli"
     )
     print(scan_command)
@@ -35,4 +33,4 @@ def scan(c):
 def kill(c):
     c.run("docker kill sonarqube")
     c.run("docker container rm sonarqube")
-    c.run(f"rm -rf {package_name}/.scannerwork")
+    c.run(f"rm -rf {conf.name}/.scannerwork")
