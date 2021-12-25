@@ -6,7 +6,7 @@ class SysInsertManager(KernelSpecManager):
         init_resp = super().get_kernel_spec(kernel_name)
         init_resp.argv = [
             *init_resp.argv,
-            "--IPKernelApp.exec_lines=['import sys', "
-            """'sys.path.insert(0, "..")']""",
+            "--IPKernelApp.exec_lines 'import sys'",
+            """--IPKernelApp.exec_lines 'sys.path.insert(0, "..")']""",
         ]
         return init_resp
