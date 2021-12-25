@@ -6,20 +6,21 @@ Installation
 Available tasks
 ===============
 
--  clean.clean
--  clean.prune
+-  clean
+-  lint
+-  notebook
+-  purge
+-  test
+-  update-boilerplate
 -  django.clean
 -  django.nb
 -  django.setup-dev
 -  docs.build
 -  docs.purge
 -  docs.setup
--  misc.lint
--  misc.notebook
--  misc.update-boilerplate
+-  release.build
 -  release.new
 -  release.tag
 -  sonar.kill
 -  sonar.scan
 -  sonar.setup
--  test.test
