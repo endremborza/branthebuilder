@@ -1,2 +1,5 @@
+v0.2.3
+------
+
 - bump pyversion
 - fix notebook runner
