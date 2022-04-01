@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[test, doc]
+        pip install -e .[test,doc]
     - name: Setup Git
       run: |
         git config --global init.defaultBranch main
