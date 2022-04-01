@@ -10,7 +10,7 @@ formats: all
 python:
   version: 3.8
   install:
-    - method: pip
+    - method: flit
       path: .
       extra_requirements:
         - docs
