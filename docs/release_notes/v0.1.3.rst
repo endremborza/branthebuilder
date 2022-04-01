@@ -1,8 +1,0 @@
-v0.1.3
-------
-
-- some extended docs
-- refactor docs
-- add docs.purge
-- simplify
-- update release task

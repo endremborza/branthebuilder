@@ -1,6 +1,0 @@
-v0.1.4
-------
-
-- push not just tags
-- fix notebook runner
-- apply version

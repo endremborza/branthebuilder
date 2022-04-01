@@ -1,16 +1,25 @@
 import importlib
-from functools import cached_property
+from pathlib import Path
+from warnings import warn
 
 import toml
 
-doc_dir_name = "docs"
-doctest_notebooks_glob = "notebooks/doc-*.ipynb"
+docdir = "docs"
+current_release_path = Path(docdir, "current_release.rst")
+cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
+cc_repo = "/home/borza/mega/hacking/tools/python-boilerplate-v2-cookiecutter"
+
+_D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}
 
 
 class PackageConf:
-    @cached_property
+    @property
     def pytom(self):
-        return toml.load("pyproject.toml")
+        try:
+            return toml.load("pyproject.toml")
+        except FileNotFoundError:
+            warn(f"not in project directory, using defaults {_D}")
+            return _D
 
     @property
     def project_conf(self):
@@ -21,16 +30,22 @@ class PackageConf:
         return self.project_conf["name"]
 
     @property
-    def line_len(self):
-        return self.pytom["tool"]["bran"]["line-length"]
+    def module_path(self):
+        if Path(self.name).exists():
+            return self.name
+        return f"{self.name}.py"
 
     @property
-    def author(self):
-        return " - ".join(self.project_conf["authors"])
+    def line_len(self):
+        return str(self.pytom["tool"]["branb"]["line-length"])
+
+    @property
+    def module(self):
+        return importlib.import_module(conf.name)
+
+    @property
+    def version(self):
+        return self.module.__version__
 
 
 conf = PackageConf()
-
-
-def get_version():
-    return importlib.import_module(conf.name).__version__

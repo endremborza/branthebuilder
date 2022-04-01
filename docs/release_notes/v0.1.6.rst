@@ -1,4 +1,0 @@
-v0.1.6
-------
-
-- cleanup lint task

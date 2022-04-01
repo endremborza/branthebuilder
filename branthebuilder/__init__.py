@@ -1,2 +1,4 @@
-from ._version import __version__  # noqa: F401
-from .namespace import ns  # noqa: F401
+"""Python package management"""
+from .main import app  # noqa
+
+__version__ = "1.0.0"
