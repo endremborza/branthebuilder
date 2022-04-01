@@ -117,6 +117,9 @@ def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool 
 
 @app.command()
 def build_docs():
+    rmtree(Path(docdir, "api"), ignore_errors=True)
+    rmtree(Path(docdir, "notebooks"), ignore_errors=True)
+
     _nbs = [*map(str, get_notebooks())]
     if _nbs:
         out = f"--output-dir={docdir}/notebooks"
