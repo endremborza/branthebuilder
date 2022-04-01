@@ -18,11 +18,12 @@ class SetupException(Exception):
 
 
 @app.command()
-def lint(line_len=conf.line_len, full: bool = False):
+def lint(line_len: int = None, full: bool = False):
+    ll = line_len or conf.line_len
     target = "." if full else conf.module_path
-    check_call(["black", target, "-l", line_len])
-    check_call(["isort", target, "--profile", "black", "-l", line_len])
-    check_call(["flake8", target, "--max-line-length", line_len])
+    check_call(["black", target, "-l", ll])
+    check_call(["isort", target, "--profile", "black", "-l", ll])
+    check_call(["flake8", target, "--max-line-length", ll])
 
 
 @app.command()

@@ -40,7 +40,7 @@ class PackageConf:
 
     @property
     def module(self):
-        return importlib.import_module(conf.name)
+        return importlib.import_module(self.name)
 
     @property
     def version(self):
