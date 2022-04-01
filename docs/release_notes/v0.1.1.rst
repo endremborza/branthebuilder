@@ -1,0 +1,6 @@
+v0.1.1
+------
+
+- update tests a bit
+- precommit hooks
+- commit-msg, commit-hook
