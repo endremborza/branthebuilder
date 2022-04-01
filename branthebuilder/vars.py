@@ -7,7 +7,6 @@ import toml
 docdir = "docs"
 current_release_path = Path(docdir, "current_release.rst")
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
-cc_repo = "/home/borza/mega/hacking/tools/python-boilerplate-v2-cookiecutter"
 
 _D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}
 
