@@ -1,3 +1,1 @@
-- update tests a bit
-- precommit hooks
-- commit-msg, commit-hook
+- first release of branthebuilder, yay!!

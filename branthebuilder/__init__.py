@@ -1,1 +1,3 @@
-from ._version import __version__  # noqa: F401
+"""Python package management"""
+
+__version__ = "0.0.0"

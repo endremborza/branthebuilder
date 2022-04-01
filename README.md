@@ -5,6 +5,3 @@
 [![codecov](https://img.shields.io/codecov/c/github/endremborza/branthebuilder)](https://codecov.io/gh/endremborza/branthebuilder)
 [![pypi](https://img.shields.io/pypi/v/branthebuilder.svg)](https://pypi.org/project/branthebuilder/)
 
-invoke tasks for python boilerplate
-
-make a new project based on the template with `python -m branthebuilder`

@@ -1,13 +1,13 @@
-
 Welcome to branthebuilder's documentation!
 =====================================================================================
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :glob:
 
+   notebooks/*
    autosumm
-   notebooks/doc-000-intro
    release_notes/main
 
 Indices and tables
