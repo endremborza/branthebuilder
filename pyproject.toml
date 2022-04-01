@@ -1,20 +1,47 @@
 [project]
 name = "branthebuilder"
-description = "Invoke command collection for managing python packages"
-authors = [
-    "Endre Márk Borza"
-]
-license = "MIT"
+dynamic = ["version", "description"]
+authors = [{name = "Endre Márk Borza", email = "endremborza@gmail.com"}]
+license = {file = "LICENSE"}
 readme = "README.md"
-python = ">=3.8"
-url = "https://github.com/endremborza/branthebuilder"
-keywords= ["invoke", "template"]
-[build-system]
-requires = [
-    "toml >= 0.10.0",
-    "setuptools >= 38.6.0, <61.0.0",
-    "wheel >= 0.31.0",
-    "setuptools_scm >= 2.0.0, <3"
+requires-python = ">=3.8"
+dependencies = [
+    "typer",
+    "flit",
+    "jupyter",
+    "black",
+    "sphinx",
+    "pytest",
+    "pytest-cov",
+    "codecov",
+    "toml",
+    "flake8",
+    "isort",
+    "pandoc",
+    "cookiecutter",
 ]
-[tool.bran]
-line-length = 79
+
+[project.optional-dependencies]
+test = [ "branthebuilder"]
+doc = [
+    "sphinx",
+    "graphviz",
+    "sphinx-automodapi",
+    "pygments",
+    "jupyter",
+    "toml"
+]
+
+[project.urls]
+Homepage = "https://github.com/endremborza/branthebuilder"
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.branb]
+line-length = 88
+
+
+[project.scripts]
+branb = "branthebuilder:app"
