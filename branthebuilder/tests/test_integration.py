@@ -32,7 +32,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     sys.path.insert(0, Path(tmp_path, "testproject").as_posix())
     ns.lint()
     ns.test(True, True, True)
-    ns.tag()
+    ns.tag("tag msg")
     check_call(["flit", "build"])
     ns.update_boilerplate(True)
 
