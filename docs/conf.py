@@ -43,6 +43,7 @@ extensions = [
     "sphinx_automodapi.smart_resolver",
     "sphinx.ext.graphviz",
     "sphinx.ext.intersphinx",
+    "myst_parser"
 ]
 
 # Add any paths that contain templates here, relative to this directory.

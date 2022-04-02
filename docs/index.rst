@@ -6,6 +6,7 @@ Welcome to branthebuilder's documentation!
    :caption: Contents:
    :glob:
 
+   README
    notebooks/*
    autosumm
    release_notes/main

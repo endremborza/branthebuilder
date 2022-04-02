@@ -29,6 +29,7 @@ doc = [
     "pandoc",
     "sphinx-automodapi",
     "sphinx-rtd-theme",
+    "myst-parser"
     "pygments",
     "jupyter",
     "toml"
