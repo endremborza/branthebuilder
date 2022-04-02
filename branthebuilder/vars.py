@@ -5,7 +5,6 @@ from warnings import warn
 import toml
 
 docdir = "docs"
-current_release_path = Path(docdir, "current_release.rst")
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
 
 _D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}

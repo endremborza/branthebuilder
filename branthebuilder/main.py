@@ -8,7 +8,7 @@ import typer
 from cookiecutter.main import cookiecutter
 
 from .nb_scripts import get_nb_scripts, get_notebooks, nb_dir
-from .vars import cc_repo, conf, current_release_path, docdir
+from .vars import cc_repo, conf, docdir
 
 app = typer.Typer()
 
@@ -128,7 +128,7 @@ def build_docs():
 
 
 @app.command()
-def tag():
+def tag(msg: str):
     branch = _get_branch()
     if branch != "main":
         raise SetupException(f"only main branch can be tagged - {branch}")
@@ -138,17 +138,13 @@ def tag():
     if tag_version in tags:
         raise SetupException(f"{tag_version} version already tagged")
     if Path(docdir).exists():
-        notes = current_release_path.read_text()
-        note_rst = f"{tag_version}\n------\n\n" + notes
+        note_rst = f"{tag_version}\n------\n\n" + msg
         Path(docdir, "release_notes", f"{tag_version}.rst").write_text(note_rst)
         build_docs()
-        current_release_path.write_text("")
         check_call(["git", "add", "docs"])
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
-    else:
-        notes = tag_version
 
-    check_call(["git", "tag", "-a", tag_version, "-m", notes])
+    check_call(["git", "tag", "-a", tag_version, "-m", msg])
     check_call(["git", "push"])
     check_call(["git", "push", "origin", tag_version])
 
