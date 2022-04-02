@@ -105,10 +105,11 @@ def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool 
         test_notebook_path.write_text("\n\n".join(get_nb_scripts()))
         test_paths.append(test_notebook_path.as_posix())
     comm = ["python", "-m", "pytest", *test_paths, "--doctest-modules"]
-    opt_dic = {f"--cov={conf.module_path}": cov, "--cov-report=html": html, "-s": v}
-    for commstr, _ in filter(lambda it: it[1], opt_dic.items()):
-        comm.append(commstr)
-
+    if cov:
+        form = "html" if html else "xml"
+        comm += [f"--cov={conf.module_path}", f"--cov-report={form}"]
+    if v:
+        comm.append("-s")
     try:
         check_call(comm)
     finally:
