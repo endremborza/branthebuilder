@@ -28,6 +28,7 @@ doc = [
     "graphviz",
     "pandoc",
     "sphinx-automodapi",
+    "sphinx-rtd-theme",
     "pygments",
     "jupyter",
     "toml"
