@@ -1,12 +1,10 @@
-Welcome to branthebuilder's documentation!
-=====================================================================================
+.. mdinclude:: ../README.md
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
    :glob:
 
-   README
    notebooks/*
    autosumm
    release_notes/main
