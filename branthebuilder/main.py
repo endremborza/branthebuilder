@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from shutil import rmtree
 from subprocess import check_call, check_output
@@ -21,9 +22,9 @@ class SetupException(Exception):
 def lint(line_len: int = None, full: bool = False):
     ll = line_len or conf.line_len
     target = "." if full else conf.module_path
-    check_call(["black", target, "-l", ll])
-    check_call(["isort", target, "--profile", "black", "-l", ll])
-    check_call(["flake8", target, "--max-line-length", ll])
+    _no_tb_call(["black", target, "-l", ll])
+    _no_tb_call(["isort", target, "--profile", "black", "-l", ll])
+    _no_tb_call(["flake8", target, "--max-line-length", ll])
 
 
 @app.command()
@@ -111,7 +112,7 @@ def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool 
     if v:
         comm.append("-s")
     try:
-        check_call(comm)
+        _no_tb_call(comm)
     finally:
         test_notebook_path.unlink(missing_ok=True)
 
@@ -168,3 +169,10 @@ def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file):
         init_str = (pack_dir / "__init__.py").read_text()
         rmtree(pack_dir)
         Path(f"{conf.name}.py").write_text(init_str)
+
+
+def _no_tb_call(args):
+    try:
+        check_call(args)
+    except Exception:
+        sys.exit(1)
