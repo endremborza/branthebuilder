@@ -108,7 +108,7 @@ def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool 
     comm = ["python", "-m", "pytest", *test_paths, "--doctest-modules"]
     if cov:
         form = "html" if html else "xml"
-        comm += [f"--cov={conf.module_path}", f"--cov-report={form}"]
+        comm += [f"--cov={conf.name}", f"--cov-report={form}"]
     if v:
         comm.append("-s")
     try:
