@@ -10,14 +10,12 @@ dependencies = [
     "flit",
     "jupyter",
     "black",
-    "sphinx",
     "pytest",
     "pytest-cov",
     "codecov",
     "toml",
     "flake8",
     "isort",
-    "pandoc",
     "cookiecutter",
 ]
 
@@ -31,8 +29,6 @@ doc = [
     "sphinx-rtd-theme",
     "myst-parser",
     "pygments",
-    "jupyter",
-    "toml"
 ]
 
 [project.urls]
