@@ -140,7 +140,7 @@ def tag(msg: str):
     if tag_version in tags:
         raise SetupException(f"{tag_version} version already tagged")
     if Path(docdir).exists():
-        note_rst = f"{tag_version}\n------\n\n" + msg
+        note_rst = f"{tag_version}\n---------------------\n\n" + msg
         Path(docdir, "release_notes", f"{tag_version}.rst").write_text(note_rst)
         build_docs()
         check_call(["git", "add", "docs"])
