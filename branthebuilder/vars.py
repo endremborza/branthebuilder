@@ -4,6 +4,9 @@ from warnings import warn
 
 import toml
 
+CFF_PATH = Path("CITATION.cff")
+ORCID_DIC_ENV = "ORCID_MAP"
+
 docdir = "docs"
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
 

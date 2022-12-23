@@ -1,3 +1,5 @@
+import datetime as dt
+import json
 import os
 import sys
 from pathlib import Path
@@ -6,10 +8,11 @@ from subprocess import check_call, check_output
 from warnings import warn
 
 import typer
+import yaml
 from cookiecutter.main import cookiecutter
 
 from .nb_scripts import get_nb_scripts, get_notebooks, nb_dir
-from .vars import cc_repo, conf, docdir
+from .vars import CFF_PATH, ORCID_DIC_ENV, cc_repo, conf, docdir
 
 app = typer.Typer()
 
@@ -145,10 +148,42 @@ def tag(msg: str):
         build_docs()
         check_call(["git", "add", "docs"])
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
+    if CFF_PATH.exists():
+        cff_dic = yaml.safe_load(CFF_PATH.read_text())
+        cff_dic["version"] = conf.version
+        cff_dic["date-released"] = dt.date.today()
+        _dump_cff(cff_dic)
+        check_call(["git", "add", CFF_PATH.as_posix()])
+        check_call(["git", "commit", "-m", f"update cff {tag_version}"])
 
     check_call(["git", "tag", "-a", tag_version, "-m", msg])
     check_call(["git", "push"])
     check_call(["git", "push", "origin", tag_version])
+
+
+@app.command()
+def init_cff():
+    proj = conf.pytom["project"]
+    url = proj["urls"]["Homepage"]
+    cff_dic = {
+        "cff-version": "1.2.0",
+        "message": "If you use this software, please cite it as below.",
+        "url": url,
+        "authors": [],
+        "title": "/".join(url.split("/")[-2:]),
+        # TODO: "doi": "10.5281/zenodo.1234",
+    }
+
+    orcid_dic = json.loads(os.environ.get(ORCID_DIC_ENV, "{}"))
+    for author in proj["authors"]:
+        names = author["name"].split()
+        adic = {"family-names": names[-1], "given-names": " ".join(names[:-1])}
+        orcid = orcid_dic.get(author["name"])
+        if orcid:
+            adic["orcid"] = orcid
+        cff_dic["authors"].append(adic)
+
+    _dump_cff(cff_dic)
 
 
 def _get_branch():
@@ -176,3 +211,7 @@ def _no_tb_call(args):
         check_call(args)
     except Exception:
         sys.exit(1)
+
+
+def _dump_cff(dic):
+    CFF_PATH.write_text(yaml.safe_dump(dic, allow_unicode=True, sort_keys=False))

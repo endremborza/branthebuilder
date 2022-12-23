@@ -17,6 +17,7 @@ dependencies = [
     "flake8",
     "isort",
     "cookiecutter",
+    "pyyaml"
 ]
 
 [project.optional-dependencies]
