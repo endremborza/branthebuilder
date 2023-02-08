@@ -1,7 +1,9 @@
 import datetime as dt
 import json
 import os
+import re
 import sys
+from functools import reduce
 from pathlib import Path
 from shutil import rmtree
 from subprocess import check_call, check_output
@@ -12,7 +14,7 @@ import yaml
 from cookiecutter.main import cookiecutter
 
 from .nb_scripts import get_nb_scripts, get_notebooks, nb_dir
-from .vars import CFF_PATH, ORCID_DIC_ENV, cc_repo, conf, docdir
+from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, cc_repo, conf
 
 app = typer.Typer()
 
@@ -91,7 +93,7 @@ def update_boilerplate(merge: bool = False):
     )
 
     single = conf.module_path.endswith(".py")
-    _cleanup(Path(docdir).exists(), Path(".github").exists(), nb_dir.exists(), single)
+    _cleanup(DOC_DIR.exists(), Path(".github").exists(), nb_dir.exists(), single)
     adds = check_output(["git", "add", "*"]).strip()
     if adds:
         check_call(["git", "commit", "-m", "update-boilerplate"])
@@ -122,14 +124,14 @@ def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool 
 
 @app.command()
 def build_docs():
-    rmtree(Path(docdir, "api"), ignore_errors=True)
-    rmtree(Path(docdir, "notebooks"), ignore_errors=True)
+    rmtree(DOC_DIR / "api", ignore_errors=True)
+    rmtree(DOC_DIR / "notebooks", ignore_errors=True)
 
     _nbs = [*map(str, get_notebooks())]
     if _nbs:
-        out = f"--output-dir={docdir}/notebooks"
+        out = f"--output-dir={DOC_DIR}/notebooks"
         check_call(["jupyter", "nbconvert", *_nbs, "--to", "rst", out])
-    check_call(["sphinx-build", docdir, f"{docdir}/_build"])
+    check_call(["sphinx-build", DOC_DIR.as_posix(), f"{DOC_DIR}/_build"])
 
 
 @app.command()
@@ -142,40 +144,40 @@ def tag(msg: str):
     tags = check_output(["git", "tag"]).split()
     if tag_version in tags:
         raise SetupException(f"{tag_version} version already tagged")
-    if Path(docdir).exists():
+    if DOC_DIR.exists():
         note_rst = f"{tag_version}\n---------------------\n\n" + msg
-        Path(docdir, "release_notes", f"{tag_version}.rst").write_text(note_rst)
+        (DOC_DIR / "release_notes" / f"{tag_version}.rst").write_text(note_rst)
         build_docs()
         check_call(["git", "add", "docs"])
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
-    if CFF_PATH.exists():
-        cff_dic = yaml.safe_load(CFF_PATH.read_text())
-        cff_dic["version"] = conf.version
-        cff_dic["date-released"] = dt.date.today()
-        _dump_cff(cff_dic)
-        check_call(["git", "add", CFF_PATH.as_posix()])
-        check_call(["git", "commit", "-m", f"update cff {tag_version}"])
-
+    _mod_cff({"version": conf.version, "date-released": dt.date.today()}, tag_version)
     check_call(["git", "tag", "-a", tag_version, "-m", msg])
     check_call(["git", "push"])
     check_call(["git", "push", "origin", tag_version])
 
 
 @app.command()
-def init_cff():
-    proj = conf.pytom["project"]
-    url = proj["urls"]["Homepage"]
+def init_cff(
+    msg: str = "If you use this software, please cite it as below.",
+    license: str = "MIT",
+):
+
+    license = "MIT"
+    cff_version: str = "1.2.0"
+    url = conf.project_conf["urls"]["Homepage"]
     cff_dic = {
-        "cff-version": "1.2.0",
-        "message": "If you use this software, please cite it as below.",
+        "cff-version": cff_version,
+        "message": msg,
         "url": url,
         "authors": [],
         "title": "/".join(url.split("/")[-2:]),
-        # TODO: "doi": "10.5281/zenodo.1234",
+        "license": license,
+        "keywords": conf.project_conf.get("keywords", []),
+        "type": "software",  # / dataset
     }
 
     orcid_dic = json.loads(os.environ.get(ORCID_DIC_ENV, "{}"))
-    for author in proj["authors"]:
+    for author in conf.project_conf["authors"]:
         names = author["name"].split()
         adic = {"family-names": names[-1], "given-names": " ".join(names[:-1])}
         orcid = orcid_dic.get(author["name"])
@@ -186,6 +188,17 @@ def init_cff():
     _dump_cff(cff_dic)
 
 
+@app.command()
+def add_zenodo_concept_doi(doi: int):
+    full_doi = f"10.5281/zenodo.{doi}"
+    fstr = "[![DOI](https://zenodo.org/badge/doi/{}.svg)](https://doi.org/{})"
+    z_match = re.compile(escape(fstr, "()[]!").format(".*", ".*")).findall
+    lines = list(filter(lambda l: not z_match(l), README_PATH.read_text().split("\n")))
+    _mod_cff({"doi": full_doi})
+    lines.insert(2, fstr.format(full_doi, full_doi))
+    README_PATH.write_text("\n".join(lines))
+
+
 def _get_branch():
     comm = ["git", "rev-parse", "--abbrev-ref", "HEAD"]
     return check_output(comm).strip().decode("utf-8")
@@ -193,7 +206,7 @@ def _get_branch():
 
 def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file):
     if not leave_docs:
-        rmtree(docdir)
+        rmtree(DOC_DIR)
         Path(".readthedocs.yml").unlink()
     if not leave_actions:
         rmtree(".github")
@@ -206,11 +219,26 @@ def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file):
         Path(f"{conf.name}.py").write_text(init_str)
 
 
+def escape(s, chars) -> str:
+    return reduce(lambda le, ri: le.replace(ri, f"\\{ri}"), chars, s)
+
+
 def _no_tb_call(args):
     try:
         check_call(args)
     except Exception:
         sys.exit(1)
+
+
+def _mod_cff(mod_dic: dict, msg: str = None):
+    if not CFF_PATH.exists():
+        return
+
+    cff_dic = yaml.safe_load(CFF_PATH.read_text())
+    _dump_cff(cff_dic | mod_dic)
+    if msg:
+        check_call(["git", "add", CFF_PATH.as_posix()])
+        check_call(["git", "commit", "-m", f"update cff {msg}"])
 
 
 def _dump_cff(dic):

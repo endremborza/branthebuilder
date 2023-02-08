@@ -6,6 +6,7 @@ from subprocess import check_call
 import pytest
 
 import branthebuilder.main as ns
+from branthebuilder.vars import CFF_PATH, README_PATH
 
 
 @pytest.mark.parametrize(
@@ -32,7 +33,15 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     sys.path.insert(0, Path(tmp_path, "testproject").as_posix())
     ns.lint()
     ns.test(True, True, True)
+    d1 = 1238979
+    ns.add_zenodo_concept_doi(d1)
+    assert str(d1) in README_PATH.read_text()
     ns.init_cff()
+    d2 = 7658979
+    ns.add_zenodo_concept_doi(d2)
+    assert str(d1) not in README_PATH.read_text()
+    assert str(d2) in README_PATH.read_text()
+    assert str(d2) in CFF_PATH.read_text()
     ns.tag("tag msg")
     check_call(["flit", "build"])
     ns.update_boilerplate(True)

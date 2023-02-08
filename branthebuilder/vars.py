@@ -4,10 +4,12 @@ from warnings import warn
 
 import toml
 
+README_PATH = Path("README.md")
 CFF_PATH = Path("CITATION.cff")
+DOC_DIR = Path("docs")
+
 ORCID_DIC_ENV = "ORCID_MAP"
 
-docdir = "docs"
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
 
 _D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}
