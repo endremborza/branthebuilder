@@ -57,7 +57,6 @@ def init(
 
 @app.command()
 def update_boilerplate(merge: bool = False):
-
     author_base = conf.project_conf["authors"][0]
     if isinstance(author_base, dict):
         name = author_base["name"]
@@ -161,7 +160,6 @@ def init_cff(
     msg: str = "If you use this software, please cite it as below.",
     license: str = "MIT",
 ):
-
     license = "MIT"
     cff_version: str = "1.2.0"
     url = conf.project_conf["urls"]["Homepage"]
@@ -192,8 +190,8 @@ def init_cff(
 def add_zenodo_concept_doi(doi: int):
     full_doi = f"10.5281/zenodo.{doi}"
     fstr = "[![DOI](https://zenodo.org/badge/doi/{}.svg)](https://doi.org/{})"
-    z_match = re.compile(escape(fstr, "()[]!").format(".*", ".*")).findall
-    lines = list(filter(lambda l: not z_match(l), README_PATH.read_text().split("\n")))
+    z_find = re.compile(escape(fstr, "()[]!").format(".*", ".*")).findall
+    lines = list(filter(lambda li: not z_find(li), README_PATH.read_text().split("\n")))
     _mod_cff({"doi": full_doi})
     lines.insert(2, fstr.format(full_doi, full_doi))
     README_PATH.write_text("\n".join(lines))
