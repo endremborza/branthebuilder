@@ -18,6 +18,9 @@ from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, cc_repo, conf
 
 app = typer.Typer()
 
+osc_path = Path(".github", "workflows", "compatibility_test.yml")
+ghw_path = osc_path.parent.parent
+
 
 class SetupException(Exception):
     pass
@@ -40,10 +43,11 @@ def init(
     actions: bool = False,
     single_file: bool = False,
     git: bool = True,
+    os_compatibility: bool = False,
 ):
     res_dir = cookiecutter(cc_repo, no_input=not input)
     os.chdir(res_dir)
-    _cleanup(docs, actions, notebooks, single_file)
+    _cleanup(docs, actions, notebooks, single_file, os_compatibility)
     if not git:
         return
     for cmd in [
@@ -92,7 +96,9 @@ def update_boilerplate(merge: bool = False):
     )
 
     single = conf.module_path.endswith(".py")
-    _cleanup(DOC_DIR.exists(), Path(".github").exists(), nb_dir.exists(), single)
+    _cleanup(
+        DOC_DIR.exists(), ghw_path.exists(), nb_dir.exists(), single, osc_path.exists()
+    )
     adds = check_output(["git", "add", "*"]).strip()
     if adds:
         check_call(["git", "commit", "-m", "update-boilerplate"])
@@ -202,12 +208,14 @@ def _get_branch():
     return check_output(comm).strip().decode("utf-8")
 
 
-def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file):
+def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file, os_compatibility):
     if not leave_docs:
         rmtree(DOC_DIR)
         Path(".readthedocs.yml").unlink()
     if not leave_actions:
-        rmtree(".github")
+        rmtree(ghw_path)
+    elif not os_compatibility:
+        osc_path.unlink()
     if not leave_notebooks:
         rmtree(nb_dir)
     if single_file:
