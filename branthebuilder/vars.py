@@ -72,8 +72,11 @@ class PackageConf:
         major, minor, bug = map(int, old_v.split("."))
         if bump == Bump.major:
             major += 1
+            minor = 0
+            bug = 0
         elif bump == Bump.minor:
             minor += 1
+            bug = 0
         elif bump == Bump.bug:
             bug += 1
         else:
