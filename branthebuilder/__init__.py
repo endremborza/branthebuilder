@@ -2,4 +2,4 @@
 
 from .main import app  # noqa
 
-__version__ = "1.0.12"
+__version__ = "2.0.12"
