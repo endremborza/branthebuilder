@@ -1,5 +1,7 @@
 import importlib
+import re
 from pathlib import Path
+from typing import Literal
 from warnings import warn
 
 import toml
@@ -44,11 +46,39 @@ class PackageConf:
 
     @property
     def module(self):
-        return importlib.import_module(self.name)
+        module = importlib.import_module(self.name)
+        return importlib.reload(module)
 
     @property
     def version(self):
-        return self.module.__version__
+        return re.findall('__version__ = "(.*)"', self.version_file.read_text())[0]
+
+    @property
+    def version_file(self):
+        if Path(self.name).exists():
+            return Path(self.name, "__init__.py")
+        else:
+            return Path(f"{self.name}.py")
+
+    def get_bumped_version(self, bump: Literal["major", "minor", "bug"]):
+
+        old_v = self.version
+        major, minor, bug = map(int, old_v.split("."))
+        if bump == "major":
+            major += 1
+        elif bump == "minor":
+            minor += 1
+        elif bump == "bug":
+            bug += 1
+        else:
+            raise ValueError(f"wrong kind of bump {bump}")
+        new_v = ".".join(map(str, (major, minor, bug)))
+        self.version_file.write_text(
+            self.version_file.read_text().replace(
+                f'__version__ = "{old_v}"', f'__version__ = "{new_v}"'
+            )
+        )
+        return new_v
 
 
 conf = PackageConf()

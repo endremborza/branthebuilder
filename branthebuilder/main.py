@@ -3,6 +3,7 @@ import json
 import os
 import re
 import sys
+from enum import Enum
 from functools import reduce
 from pathlib import Path
 from shutil import rmtree
@@ -24,6 +25,12 @@ ghw_path = osc_path.parent.parent
 
 class SetupException(Exception):
     pass
+
+
+class Bump(Enum):
+    major = "major"
+    minor = "minor"
+    bug = "bug"
 
 
 @app.command()
@@ -140,12 +147,13 @@ def build_docs():
 
 
 @app.command()
-def tag(msg: str):
+def tag(msg: str, bump: Bump):
     branch = _get_branch()
     if branch != "main":
         raise SetupException(f"only main branch can be tagged - {branch}")
 
-    tag_version = f"v{conf.version}"
+    new_version = conf.get_bumped_version(bump)
+    tag_version = f"v{new_version}"
     tags = check_output(["git", "tag"]).split()
     if tag_version in tags:
         raise SetupException(f"{tag_version} version already tagged")
@@ -155,7 +163,9 @@ def tag(msg: str):
         build_docs()
         check_call(["git", "add", "docs"])
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
-    _mod_cff({"version": conf.version, "date-released": dt.date.today()}, tag_version)
+    _mod_cff({"version": new_version, "date-released": dt.date.today()}, tag_version)
+    check_call(["git", "add", conf.version_file])
+    check_call(["git", "commit", "-m", f"bump {bump} __version__ for {tag_version}"])
     check_call(["git", "tag", "-a", tag_version, "-m", msg])
     check_call(["git", "push"])
     check_call(["git", "push", "origin", tag_version])

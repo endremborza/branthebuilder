@@ -27,6 +27,8 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     if single_file:
         with Path("testproject.py").open("a") as f:
             f.write(DOCTESTED_FUN)
+        check_call(["git", "add", "testproject.py"])
+        check_call(["git", "commit", "-m", "dtfun"])
 
     check_call(["git", "remote", "add", "origin", "../remote"])
     check_call(["git", "push", "--set-upstream", "origin", "main"])
@@ -42,7 +44,9 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     assert str(d1) not in README_PATH.read_text()
     assert str(d2) in README_PATH.read_text()
     assert str(d2) in CFF_PATH.read_text()
-    ns.tag("tag msg")
+    ns.tag("tag msg", "minor")
+    ns.tag("tag msg", "major")
+    ns.tag("tag msg", "bug")
     check_call(["flit", "build"])
     ns.update_boilerplate(True)
 
