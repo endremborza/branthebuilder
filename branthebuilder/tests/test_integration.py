@@ -6,7 +6,7 @@ from subprocess import check_call
 import pytest
 
 import branthebuilder.main as ns
-from branthebuilder.vars import CFF_PATH, README_PATH
+from branthebuilder.vars import CFF_PATH, README_PATH, Bump
 
 
 @pytest.mark.parametrize(
@@ -44,9 +44,9 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     assert str(d1) not in README_PATH.read_text()
     assert str(d2) in README_PATH.read_text()
     assert str(d2) in CFF_PATH.read_text()
-    ns.tag("tag msg", "minor")
-    ns.tag("tag msg", "major")
-    ns.tag("tag msg", "bug")
+    ns.tag("tag msg", Bump.minor)
+    ns.tag("tag msg", Bump.major)
+    ns.tag("tag msg", Bump.bug)
     check_call(["flit", "build"])
     ns.update_boilerplate(True)
 

@@ -1,7 +1,7 @@
 import importlib
 import re
+from enum import Enum
 from pathlib import Path
-from typing import Literal
 from warnings import warn
 
 import toml
@@ -15,6 +15,12 @@ ORCID_DIC_ENV = "ORCID_MAP"
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
 
 _D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}
+
+
+class Bump(Enum):
+    major = "major"
+    minor = "minor"
+    bug = "bug"
 
 
 class PackageConf:
@@ -60,15 +66,15 @@ class PackageConf:
         else:
             return Path(f"{self.name}.py")
 
-    def get_bumped_version(self, bump: Literal["major", "minor", "bug"]):
+    def get_bumped_version(self, bump: Bump):
 
         old_v = self.version
         major, minor, bug = map(int, old_v.split("."))
-        if bump == "major":
+        if bump == Bump.major:
             major += 1
-        elif bump == "minor":
+        elif bump == Bump.minor:
             minor += 1
-        elif bump == "bug":
+        elif bump == Bump.bug:
             bug += 1
         else:
             raise ValueError(f"wrong kind of bump {bump}")

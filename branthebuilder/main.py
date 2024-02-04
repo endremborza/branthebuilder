@@ -3,7 +3,6 @@ import json
 import os
 import re
 import sys
-from enum import Enum
 from functools import reduce
 from pathlib import Path
 from shutil import rmtree
@@ -15,7 +14,7 @@ import yaml
 from cookiecutter.main import cookiecutter
 
 from .nb_scripts import get_nb_scripts, get_notebooks, nb_dir
-from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, cc_repo, conf
+from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, Bump, cc_repo, conf
 
 app = typer.Typer()
 
@@ -25,12 +24,6 @@ ghw_path = osc_path.parent.parent
 
 class SetupException(Exception):
     pass
-
-
-class Bump(Enum):
-    major = "major"
-    minor = "minor"
-    bug = "bug"
 
 
 @app.command()
