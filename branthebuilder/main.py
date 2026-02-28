@@ -27,12 +27,10 @@ class SetupException(Exception):
 
 
 @app.command()
-def lint(line_len: int = None, full: bool = False):
-    ll = line_len or conf.line_len
+def lint(full: bool = False):
     target = "." if full else conf.module_path
-    _no_tb_call(["black", target, "-l", ll])
-    _no_tb_call(["isort", target, "--profile", "black", "-l", ll])
-    _no_tb_call(["flake8", target, "--max-line-length", ll])
+    _no_tb_call(["ruff", "format", target])
+    _no_tb_call(["ruff", "check", "--fix", target])
 
 
 @app.command()

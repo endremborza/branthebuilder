@@ -1,10 +1,10 @@
 import importlib
 import re
+import tomllib
 from enum import Enum
+from functools import cached_property
 from pathlib import Path
 from warnings import warn
-
-import toml
 
 README_PATH = Path("README.md")
 CFF_PATH = Path("CITATION.cff")
@@ -14,7 +14,7 @@ ORCID_DIC_ENV = "ORCID_MAP"
 
 cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
 
-_D = {"project": {"name": ".", "author": []}, "tool": {"branb": {"line-length": 88}}}
+_D = {"project": {"name": ".", "author": []}}
 
 
 class Bump(Enum):
@@ -24,10 +24,11 @@ class Bump(Enum):
 
 
 class PackageConf:
-    @property
+    @cached_property
     def pytom(self):
         try:
-            return toml.load("pyproject.toml")
+            with open("pyproject.toml", "rb") as f:
+                return tomllib.load(f)
         except FileNotFoundError:
             warn(f"not in project directory, using defaults {_D}")
             return _D
@@ -47,10 +48,6 @@ class PackageConf:
         return f"{self.name}.py"
 
     @property
-    def line_len(self):
-        return str(self.pytom["tool"]["branb"]["line-length"])
-
-    @property
     def module(self):
         module = importlib.import_module(self.name)
         return importlib.reload(module)
@@ -67,20 +64,20 @@ class PackageConf:
             return Path(f"{self.name}.py")
 
     def get_bumped_version(self, bump: Bump):
-
         old_v = self.version
         major, minor, bug = map(int, old_v.split("."))
-        if bump == Bump.major:
-            major += 1
-            minor = 0
-            bug = 0
-        elif bump == Bump.minor:
-            minor += 1
-            bug = 0
-        elif bump == Bump.bug:
-            bug += 1
-        else:
-            raise ValueError(f"wrong kind of bump {bump}")
+        match bump:
+            case Bump.major:
+                major += 1
+                minor = 0
+                bug = 0
+            case Bump.minor:
+                minor += 1
+                bug = 0
+            case Bump.bug:
+                bug += 1
+            case _:
+                raise ValueError(f"wrong kind of bump {bump}")
         new_v = ".".join(map(str, (major, minor, bug)))
         self.version_file.write_text(
             self.version_file.read_text().replace(
