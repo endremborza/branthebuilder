@@ -10,7 +10,8 @@ dependencies = [
     "typer",
     "ruff",
     "cookiecutter",
-    "pyyaml"
+    "pyyaml",
+    "chardet<6",
 ]
 
 [project.optional-dependencies]
