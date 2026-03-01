@@ -46,10 +46,9 @@ def init(
     res_dir = cookiecutter(cc_repo, no_input=not input)
     os.chdir(res_dir)
     _cleanup(docs, actions, notebooks, single_file, os_compatibility)
-    check_call(["uv", "sync"])
+    check_call(["uv", "sync", "--all-groups"])
     if notebooks:
         check_call(["uv", "add", "jupyter", "--group", "notebooks"])
-    check_call(["uv", "sync", "--all-extras"])
 
     if not git:
         return
@@ -140,8 +139,8 @@ def build_docs():
     _nbs = [*map(str, get_notebooks())]
     if _nbs:
         out = f"--output-dir={DOC_DIR}/notebooks"
-        check_call(["jupyter", "nbconvert", *_nbs, "--to", "rst", out])
-    check_call(["sphinx-build", DOC_DIR.as_posix(), f"{DOC_DIR}/_build"])
+        check_call(["uv", "run", "jupyter", "nbconvert", *_nbs, "--to", "rst", out])
+    check_call(["uv", "run", "sphinx-build", DOC_DIR.as_posix(), f"{DOC_DIR}/_build"])
 
 
 @app.command()
