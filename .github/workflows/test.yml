@@ -2,7 +2,7 @@ name: Python Test
 
 on:
   pull_request:
-    branches: 
+    branches:
       - main
   push:
     branches:
@@ -12,26 +12,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install pandoc -y
-        python -m pip install --upgrade pip
-        pip install -e .[test,doc]
-    - name: Setup Git
-      run: |
-        git config --global init.defaultBranch main
-        git config --global user.email "leo@dumbartonserum.com"
-        git config --global user.name "Leo Dumbarton"
-    - name: Test
-      run: |
-        branb test
-    - name: "Upload coverage to Codecov"
-      uses: codecov/codecov-action@v3
+        python-version: '3.11'
+    - run: pip install -e .[test]
+    - run: branb test
+    - uses: codecov/codecov-action@v4
       with:
         fail_ci_if_error: true
