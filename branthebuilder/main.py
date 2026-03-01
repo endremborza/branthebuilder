@@ -46,6 +46,7 @@ def init(
     res_dir = cookiecutter(cc_repo, no_input=not input)
     os.chdir(res_dir)
     _cleanup(docs, actions, notebooks, single_file, os_compatibility)
+    check_call(["uv", "sync"])
     if notebooks:
         check_call(["uv", "add", "jupyter", "--group", "notebooks"])
     check_call(["uv", "sync", "--all-extras"])
