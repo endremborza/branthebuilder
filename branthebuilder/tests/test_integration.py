@@ -1,21 +1,12 @@
 import os
 import sys
 from pathlib import Path
-from subprocess import CalledProcessError, check_call
+from subprocess import check_call
 
 import pytest
 
 import branthebuilder.main as ns
 from branthebuilder.vars import CFF_PATH, README_PATH, Bump
-
-
-def local_gitconf():
-    try:
-        check_call(["git", "init"])
-    except CalledProcessError:
-        pass
-    check_call(["git", "config", "user.email", "test@me.com"])
-    check_call(["git", "config", "user.name", "Leo"])
 
 
 @pytest.mark.parametrize(
@@ -30,9 +21,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     os.chdir(tmp_path)
     check_call(["git", "init", "remote"])
     os.chdir("remote")
-    local_gitconf()
     os.chdir(tmp_path)
-    local_gitconf()
     ns.init(False, docs, nb, actions, single_file)
     if single_file:
         with Path("testproject.py").open("a") as f:

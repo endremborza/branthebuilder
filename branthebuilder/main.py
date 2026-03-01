@@ -49,7 +49,7 @@ def init(
     if not git:
         return
     for cmd in [
-        ["init"],
+        ["init", "-b", "main"],
         ["add", "*"],
         ["commit", "-m", "init"],
         ["branch", "template"],
@@ -65,7 +65,7 @@ def update_boilerplate(merge: bool = False):
         email = author_base["email"]
         url = conf.project_conf["urls"]["Homepage"]
         pykey = "requires-python"
-        description = conf.module.__doc__
+        description = conf.project_conf["description"]
     else:
         warn("legacy pyproject.toml! fill in email and delete some files")
         name = author_base
