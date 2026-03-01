@@ -162,7 +162,7 @@ def tag(msg: str, bump: Bump):
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
     _mod_cff({"version": new_version, "date-released": dt.date.today()}, tag_version)
     check_call(["git", "add", conf.version_file])
-    check_call(["git", "commit", "-m", f"bump {bump} __version__ for {tag_version}"])
+    check_call(["git", "commit", "-m", f"{bump} __version__ for {tag_version}"])
     check_call(["git", "tag", "-a", tag_version, "-m", msg])
     check_call(["git", "push"])
     check_call(["git", "push", "origin", tag_version])
