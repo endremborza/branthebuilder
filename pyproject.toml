@@ -22,6 +22,8 @@ doc = [
     "sphinx",
     "graphviz",
     "sphinx-automodapi",
+    "sphinx-rtd-theme",
+    "myst-parser",
     "pygments",
 ]
 [project.urls]
