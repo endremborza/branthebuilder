@@ -34,7 +34,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     check_call(["git", "push", "--set-upstream", "origin", "main"])
     sys.path.insert(0, Path(tmp_path, "testproject").as_posix())
     ns.lint()
-    ns.test(True, True, True)
+    ns.test(True, True, True, nb)
     d1 = 1238979
     ns.add_zenodo_concept_doi(d1)
     assert str(d1) in README_PATH.read_text()
