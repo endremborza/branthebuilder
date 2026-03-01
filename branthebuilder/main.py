@@ -46,6 +46,8 @@ def init(
     res_dir = cookiecutter(cc_repo, no_input=not input)
     os.chdir(res_dir)
     _cleanup(docs, actions, notebooks, single_file, os_compatibility)
+    if notebooks:
+        check_call(["uv", "add", "jupyter", "--group", "notebooks"])
     if not git:
         return
     for cmd in [
@@ -106,11 +108,13 @@ def update_boilerplate(merge: bool = False):
 
 
 @app.command()
-def test(html: bool = False, v: bool = False, notebooks: bool = True, cov: bool = True):
+def test(
+    html: bool = False, v: bool = False, cov: bool = True, notebooks: bool = False
+):
     lint()
     test_paths = [conf.module_path]
     test_notebook_path = Path("test_nb_integrations.py")
-    if notebooks:
+    if notebooks and get_notebooks():
         test_notebook_path.write_text("\n\n".join(get_nb_scripts()))
         test_paths.append(test_notebook_path.as_posix())
     comm = ["python", "-m", "pytest", *test_paths, "--doctest-modules"]
