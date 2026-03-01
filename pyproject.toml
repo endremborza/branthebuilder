@@ -26,6 +26,7 @@ doc = [
     "sphinx-rtd-theme",
     "myst-parser",
     "pygments",
+    "pandoc",
 ]
 [project.urls]
 Homepage = "https://github.com/endremborza/branthebuilder"
