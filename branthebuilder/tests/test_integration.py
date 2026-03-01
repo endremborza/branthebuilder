@@ -47,7 +47,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     ns.tag("tag msg", Bump.minor)
     ns.tag("tag msg", Bump.major)
     ns.tag("tag msg", Bump.bug)
-    check_call(["flit", "build"])
+    check_call(["uv", "build"])
     ns.update_boilerplate(True)
 
 
