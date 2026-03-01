@@ -224,6 +224,10 @@ def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file, os_compati
         init_str = (pack_dir / "__init__.py").read_text()
         rmtree(pack_dir)
         Path(f"{conf.name}.py").write_text(init_str)
+        pyproject = Path("pyproject.toml")
+        pyproject.write_text(
+            pyproject.read_text().replace(f"{conf.name}/__init__.py", f"{conf.name}.py")
+        )
 
 
 def escape(s, chars) -> str:

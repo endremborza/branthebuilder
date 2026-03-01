@@ -9,6 +9,11 @@ import branthebuilder.main as ns
 from branthebuilder.vars import CFF_PATH, README_PATH, Bump
 
 
+def local_gitconf():
+    check_call(["git", "config", "user.email", "test@me.com"])
+    check_call(["git", "config", "user.name", "Leo"])
+
+
 @pytest.mark.parametrize(
     "docs,nb,single_file,actions",
     [
@@ -21,7 +26,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     os.chdir(tmp_path)
     check_call(["git", "init", "remote"])
     os.chdir("remote")
-    check_call(["git", "config", "receive.denyCurrentBranch", "ignore"])
+    local_gitconf()
     os.chdir(tmp_path)
     ns.init(False, docs, nb, actions, single_file)
     if single_file:
