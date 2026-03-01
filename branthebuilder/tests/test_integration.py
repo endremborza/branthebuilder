@@ -19,8 +19,9 @@ from branthebuilder.vars import CFF_PATH, README_PATH, Bump
 )
 def test_integration(tmp_path, docs, nb, single_file, actions):
     os.chdir(tmp_path)
-    check_call(["git", "init", "remote"])
+    check_call(["git", "init", "remote", "-b", "main"])
     os.chdir("remote")
+    check_call(["git", "config", "receive.denyCurrentBranch", "ignore"])
     os.chdir(tmp_path)
     ns.init(False, docs, nb, actions, single_file)
     if single_file:
