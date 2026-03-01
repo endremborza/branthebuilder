@@ -48,6 +48,8 @@ def init(
     _cleanup(docs, actions, notebooks, single_file, os_compatibility)
     if notebooks:
         check_call(["uv", "add", "jupyter", "--group", "notebooks"])
+    check_call(["uv", "sync", "--all-extras"])
+
     if not git:
         return
     for cmd in [
