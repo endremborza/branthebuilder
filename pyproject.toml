@@ -1,47 +1,26 @@
 [project]
 name = "branthebuilder"
-dynamic = ["version", "description"]
+description = "Python package management"
+dynamic = ["version"]
 authors = [{name = "Endre Márk Borza", email = "endremborza@gmail.com"}]
 license = {file = "LICENSE"}
 readme = "README.md"
-requires-python = ">=3.8"
-dependencies = [
-    "typer",
-    "flit",
-    "jupyter",
-    "black",
-    "sphinx",
-    "pytest",
-    "pytest-cov",
-    "codecov",
-    "toml",
-    "flake8",
-    "isort",
-    "pandoc",
-    "cookiecutter",
-]
+requires-python = ">=3.11"
+dependencies = []
 
 [project.optional-dependencies]
-test = [ "branthebuilder"]
-doc = [
-    "sphinx",
-    "graphviz",
-    "sphinx-automodapi",
-    "pygments",
-    "jupyter",
-    "toml"
-]
+test = ["branthebuilder[test]"]
+doc = ["branthebuilder[doc]"]
 
 [project.urls]
 Homepage = "https://github.com/endremborza/branthebuilder"
 
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.branb]
-line-length = 88
+[tool.hatch.version]
+path = "branthebuilder/__init__.py"
 
-
-[project.scripts]
-branb = "branthebuilder:app"
+[tool.ruff.lint]
+select = ["E", "F", "I"]
