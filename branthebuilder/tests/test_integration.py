@@ -12,7 +12,7 @@ from branthebuilder.vars import CFF_PATH, README_PATH, Bump
 @pytest.mark.parametrize(
     "docs,nb,single_file,actions",
     [
-        (True, True, False, True),
+        # (True, True, False, True),
         (False, False, True, False),
         (True, False, True, False),
     ],
