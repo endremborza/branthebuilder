@@ -10,10 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
-    - run: pip install uv
+    - uses: astral-sh/setup-uv@v5
     - run: uv build && uv publish
       env:
         UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
