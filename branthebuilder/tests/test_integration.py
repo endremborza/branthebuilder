@@ -10,20 +10,20 @@ from branthebuilder.vars import CFF_PATH, README_PATH, Bump
 
 
 @pytest.mark.parametrize(
-    "docs,nb,single_file,actions",
+    "docs,single_file,actions",
     [
-        (True, True, False, True),
-        (False, False, True, False),
-        (True, False, True, False),
+        (True, False, True),
+        (False, True, False),
+        (True, True, False),
     ],
 )
-def test_integration(tmp_path, docs, nb, single_file, actions):
+def test_integration(tmp_path, docs, single_file, actions):
     os.chdir(tmp_path)
     check_call(["git", "init", "remote", "-b", "main"])
     os.chdir("remote")
     check_call(["git", "config", "receive.denyCurrentBranch", "ignore"])
     os.chdir(tmp_path)
-    ns.init(False, docs, nb, actions, single_file)
+    ns.init(False, docs, actions, single_file)
     if single_file:
         with Path("testproject.py").open("a") as f:
             f.write(DOCTESTED_FUN)
@@ -34,7 +34,7 @@ def test_integration(tmp_path, docs, nb, single_file, actions):
     check_call(["git", "push", "--set-upstream", "origin", "main"])
     sys.path.insert(0, Path(tmp_path, "testproject").as_posix())
     ns.lint()
-    ns.test(True, True, True, nb)
+    ns.test(True, True)
     d1 = 1238979
     ns.add_zenodo_concept_doi(d1)
     assert str(d1) in README_PATH.read_text()
