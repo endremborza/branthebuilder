@@ -1,5 +1,6 @@
 import importlib
 import re
+import sys
 import tomllib
 from enum import Enum
 from functools import cached_property
@@ -49,6 +50,13 @@ class PackageConf:
 
     @property
     def module(self):
+        cwd = str(Path.cwd())
+        if cwd not in sys.path:
+            sys.path.insert(0, cwd)
+        for site_packages in Path(".venv").glob("lib/python*/site-packages"):
+            s = str(site_packages)
+            if s not in sys.path:
+                sys.path.insert(0, s)
         module = importlib.import_module(self.name)
         return importlib.reload(module)
 
