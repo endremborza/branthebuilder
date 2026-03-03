@@ -11,23 +11,10 @@ dependencies = [
     "ruff",
     "cookiecutter",
     "pyyaml",
-    "chardet<6",
-]
-
-[project.optional-dependencies]
-test = [
     "pytest",
     "pytest-cov",
 ]
-doc = [
-    "sphinx",
-    "graphviz",
-    "sphinx-automodapi",
-    "sphinx-rtd-theme",
-    "myst-parser",
-    "pygments",
-    "pandoc",
-]
+
 [project.urls]
 Homepage = "https://github.com/endremborza/branthebuilder"
 
