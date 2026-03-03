@@ -1,4 +1,0 @@
-v1.0.4
-------
-
-simplify tag msg and test it
