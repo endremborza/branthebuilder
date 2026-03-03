@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.11'
           enable-cache: true
-      - run: uv pip install -e .[test]
+      - run: uv pip install -e .
       - run: |
           git config --global user.email "ci@example.com"
           git config --global user.name "CI"
