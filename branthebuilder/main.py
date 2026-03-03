@@ -1,4 +1,5 @@
 import datetime as dt
+import inspect
 import json
 import os
 import re
@@ -6,14 +7,13 @@ import sys
 from functools import reduce
 from pathlib import Path
 from shutil import rmtree
-from subprocess import check_call, check_output
+from subprocess import check_call, check_output, run
 from warnings import warn
 
 import typer
 import yaml
 from cookiecutter.main import cookiecutter
 
-from .nb_scripts import get_nb_scripts, get_notebooks, nb_dir
 from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, Bump, cc_repo, conf
 
 app = typer.Typer()
@@ -29,15 +29,15 @@ class SetupException(Exception):
 @app.command()
 def lint(full: bool = False):
     target = "." if full else conf.module_path
-    _no_tb_call(["ruff", "format", target])
-    _no_tb_call(["ruff", "check", "--fix", target])
+    ruff = str(Path(sys.executable).parent / "ruff")
+    _no_tb_call([ruff, "format", target])
+    _no_tb_call([ruff, "check", "--fix", target])
 
 
 @app.command()
 def init(
     input: bool = True,
     docs: bool = False,
-    notebooks: bool = False,
     actions: bool = False,
     single_file: bool = False,
     git: bool = True,
@@ -45,10 +45,8 @@ def init(
 ):
     res_dir = cookiecutter(cc_repo, no_input=not input)
     os.chdir(res_dir)
-    _cleanup(docs, actions, notebooks, single_file, os_compatibility)
-    check_call(["uv", "sync", "--all-groups"])
-    if notebooks:
-        check_call(["uv", "add", "jupyter", "--group", "notebooks"])
+    _cleanup(docs, actions, single_file, os_compatibility)
+    check_call(["uv", "sync"])
 
     if not git:
         return
@@ -98,9 +96,7 @@ def update_boilerplate(merge: bool = False):
     )
 
     single = conf.module_path.endswith(".py")
-    _cleanup(
-        DOC_DIR.exists(), ghw_path.exists(), nb_dir.exists(), single, osc_path.exists()
-    )
+    _cleanup(DOC_DIR.exists(), ghw_path.exists(), single, osc_path.exists())
     adds = check_output(["git", "add", "*"]).strip()
     if adds:
         check_call(["git", "commit", "-m", "update-boilerplate"])
@@ -110,37 +106,85 @@ def update_boilerplate(merge: bool = False):
 
 
 @app.command()
-def test(
-    html: bool = False, v: bool = False, cov: bool = True, notebooks: bool = False
-):
+def test(v: bool = False, cov: bool = True):
     lint()
-    test_paths = [conf.module_path]
-    test_notebook_path = Path("test_nb_integrations.py")
-    if notebooks and get_notebooks():
-        test_notebook_path.write_text("\n\n".join(get_nb_scripts()))
-        test_paths.append(test_notebook_path.as_posix())
-    comm = ["python", "-m", "pytest", *test_paths, "--doctest-modules"]
+    comm = [
+        "uv",
+        "run",
+        "--with",
+        "pytest",
+        "--with",
+        "pytest-cov",
+        "python",
+        "-m",
+        "pytest",
+        conf.module_path,
+        "--doctest-modules",
+    ]
     if cov:
-        form = "html" if html else "xml"
-        comm += [f"--cov={conf.name}", f"--cov-report={form}"]
+        comm += [
+            f"--cov={conf.name}",
+            "--cov-report=html:coverage/html",
+            "--cov-report=term-missing",
+        ]
     if v:
         comm.append("-s")
+    pytest_failed = False
     try:
-        _no_tb_call(comm)
-    finally:
-        test_notebook_path.unlink(missing_ok=True)
+        check_call(comm)
+    except Exception:
+        pytest_failed = True
+    if cov and Path(".coverage").exists():
+        cov_dir = Path("coverage")
+        cov_dir.mkdir(exist_ok=True)
+        result = run(
+            [
+                "uv",
+                "run",
+                "--with",
+                "coverage",
+                "python",
+                "-m",
+                "coverage",
+                "report",
+                "--format=markdown",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        (cov_dir / "report.md").write_text(result.stdout)
+    if pytest_failed:
+        sys.exit(1)
 
 
 @app.command()
 def build_docs():
-    rmtree(DOC_DIR / "api", ignore_errors=True)
-    rmtree(DOC_DIR / "notebooks", ignore_errors=True)
-
-    _nbs = [*map(str, get_notebooks())]
-    if _nbs:
-        out = f"--output-dir={DOC_DIR}/notebooks"
-        check_call(["uv", "run", "jupyter", "nbconvert", *_nbs, "--to", "rst", out])
-    check_call(["uv", "run", "sphinx-build", DOC_DIR.as_posix(), f"{DOC_DIR}/_build"])
+    DOC_DIR.mkdir(exist_ok=True)
+    module = conf.module
+    lines = [f"# {conf.name}"]
+    if module.__doc__:
+        lines.extend(["", module.__doc__.strip()])
+    for name, obj in sorted(inspect.getmembers(module)):
+        if name.startswith("_"):
+            continue
+        is_local = getattr(obj, "__module__", "").startswith(conf.name)
+        if inspect.isfunction(obj) and is_local:
+            lines.extend(["", f"## `{name}{inspect.signature(obj)}`"])
+            if obj.__doc__:
+                lines.append(obj.__doc__.strip())
+        elif inspect.isclass(obj) and is_local:
+            lines.extend(["", f"## `{name}`"])
+            if obj.__doc__:
+                lines.append(obj.__doc__.strip())
+            for mname, mobj in sorted(
+                inspect.getmembers(obj, predicate=inspect.isfunction)
+            ):
+                if mname.startswith("_"):
+                    continue
+                lines.extend(["", f"### `{mname}{inspect.signature(mobj)}`"])
+                if mobj.__doc__:
+                    lines.append(mobj.__doc__.strip())
+    (DOC_DIR / "api.md").write_text("\n".join(lines) + "\n")
 
 
 @app.command()
@@ -153,13 +197,17 @@ def tag(msg: str, bump: Bump):
     tag_version = f"v{new_version}"
     tags = check_output(["git", "tag"]).split()
     if tag_version in tags:
+        check_call(["git", "checkout", "--", conf.version_file.as_posix()])
         raise SetupException(f"{tag_version} version already tagged")
+
     if DOC_DIR.exists():
-        note_rst = f"{tag_version}\n---------------------\n\n" + msg
-        (DOC_DIR / "release_notes" / f"{tag_version}.rst").write_text(note_rst)
-        build_docs()
-        check_call(["git", "add", "docs"])
+        notes_file = DOC_DIR / "release_notes.md"
+        existing = notes_file.read_text() if notes_file.exists() else ""
+        entry = f"## {tag_version}\n\n{msg}\n"
+        notes_file.write_text(f"{entry}\n---\n\n{existing}" if existing else entry)
+        check_call(["git", "add", DOC_DIR.as_posix()])
         check_call(["git", "commit", "-m", f"docs for {tag_version}"])
+
     _mod_cff({"version": new_version, "date-released": dt.date.today()}, tag_version)
     check_call(["git", "add", conf.version_file])
     check_call(["git", "commit", "-m", f"{bump} __version__ for {tag_version}"])
@@ -215,16 +263,14 @@ def _get_branch():
     return check_output(comm).strip().decode("utf-8")
 
 
-def _cleanup(leave_docs, leave_actions, leave_notebooks, single_file, os_compatibility):
+def _cleanup(leave_docs, leave_actions, single_file, os_compatibility):
     if not leave_docs:
-        rmtree(DOC_DIR)
-        Path(".readthedocs.yml").unlink()
+        rmtree(DOC_DIR, ignore_errors=True)
+        Path(".readthedocs.yml").unlink(missing_ok=True)
     if not leave_actions:
         rmtree(ghw_path)
     elif not os_compatibility:
         osc_path.unlink()
-    if not leave_notebooks:
-        rmtree(nb_dir)
     if single_file:
         pack_dir = Path(conf.name)
         init_str = (pack_dir / "__init__.py").read_text()
