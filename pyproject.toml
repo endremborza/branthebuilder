@@ -13,6 +13,7 @@ dependencies = [
     "pyyaml",
     "pytest",
     "pytest-cov",
+    "chardet<6",
 ]
 
 [project.urls]
