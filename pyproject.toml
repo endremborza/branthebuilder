@@ -1,7 +1,7 @@
 [project]
 name = "branthebuilder"
 dynamic = ["version"]
-description = "Python package management"
+description = "Python package scaffolding and CI boilerplate"
 authors = [{name = "Endre Márk Borza", email = "endremborza@gmail.com"}]
 license = {file = "LICENSE"}
 readme = "README.md"
