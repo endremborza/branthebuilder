@@ -14,7 +14,16 @@ import typer
 import yaml
 from cookiecutter.main import cookiecutter
 
-from .vars import CFF_PATH, DOC_DIR, ORCID_DIC_ENV, README_PATH, Bump, cc_repo, conf
+from .vars import (
+    CFF_PATH,
+    DOC_DIR,
+    ORCID_DIC_ENV,
+    README_PATH,
+    TEST_DIR,
+    Bump,
+    cc_repo,
+    conf,
+)
 
 app = typer.Typer()
 
@@ -121,6 +130,8 @@ def test(v: bool = False, cov: bool = True):
         conf.module_path,
         "--doctest-modules",
     ]
+    if TEST_DIR.is_dir():
+        comm.append(TEST_DIR.as_posix())
     if cov:
         comm += [
             f"--cov={conf.name}",

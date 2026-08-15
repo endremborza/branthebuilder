@@ -10,6 +10,7 @@ from warnings import warn
 README_PATH = Path("README.md")
 CFF_PATH = Path("CITATION.cff")
 DOC_DIR = Path("docs")
+TEST_DIR = Path("tests")
 
 ORCID_DIC_ENV = "ORCID_MAP"
 
