@@ -5,7 +5,13 @@ import pytest
 
 import branthebuilder.main as ns
 from branthebuilder import _render
-from branthebuilder.vars import CFF_PATH, NOTES_PATH, README_PATH, conf
+from branthebuilder.vars import (
+    CFF_PATH,
+    NOTES_PATH,
+    README_PATH,
+    TEMPLATE_BRANCH,
+    conf,
+)
 
 
 def _git(*args: str) -> str:
@@ -60,15 +66,25 @@ def test_integration(tmp_path, monkeypatch, single_file, actions):
     check_call(["uv", "build"])
 
     retired = Path(_render.RETIRED[-1])
-    _git("checkout", "-q", "template")
+    _git("checkout", "-q", TEMPLATE_BRANCH)
     retired.write_text("from an earlier template")
     _git("add", retired.as_posix())
     _git("commit", "-qm", "earlier template")
     _git("checkout", "-q", "main")
-    _git("merge", "-q", "--no-edit", "template")
+    _git("merge", "-q", "--no-edit", TEMPLATE_BRANCH)
     ns.update_boilerplate(merge=True)
     assert not retired.exists()
-    assert _git("log", "-1", "--format=%s", "template") == "update-boilerplate"
+    _git("commit", "-q", "--no-edit")
+
+    _git("branch", "-D", TEMPLATE_BRANCH)
+    gitignore = Path(".gitignore")
+    rendered = gitignore.read_text()
+    gitignore.write_text("stale\n")
+    _git("commit", "-qam", "stale gitignore")
+    readme = README_PATH.read_text()
+    ns.update_boilerplate(merge=True)
+    assert gitignore.read_text() == rendered
+    assert README_PATH.read_text() == readme
 
 
 DOCTESTED_FUN = '''

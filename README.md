@@ -44,9 +44,9 @@ The tag push runs `.github/workflows/release.yml`: once the workflow its `gate` 
 
 ### Template
 
-`branb init <name>` renders `branthebuilder/template/`, replacing each `{{field}}` of `_render.Context` in paths and contents, with the author taken from `git config user.name`/`user.email` and the GitHub owner from `--github-user` or `git config github.user`. `--actions` adds the workflows, `--os-compatibility` the OS matrix, `--single-file` a module instead of a package. The first commit holds the rendered files only and the `template` branch points at it; the uv lock lands in a second commit.
+`branb init <name>` renders `branthebuilder/template/`, replacing each `{{field}}` of `_render.Context` in paths and contents, with the author taken from `git config user.name`/`user.email` and the GitHub owner from `--github-user` or `git config github.user`. `--actions` adds the workflows, `--os-compatibility` the OS matrix, `--single-file` a module instead of a package. The first commit holds everything, including `uv.lock`, and the template branch (`vars.TEMPLATE_BRANCH`) points at it.
 
-`branb update-boilerplate` re-renders the template with the project's current values and layout onto the `template` branch and commits it there; `--merge` merges it into the current branch, otherwise `git merge template` is yours to run. A file the template no longer produces is listed in `_render.RETIRED`, which removes it from the `template` branch, so the merge deletes it from the project unless the project changed it.
+After `init` the project owns every file except those matching `_render.MANAGED` (`.gitignore` and the workflows). `branb update-boilerplate` re-renders those with the project's current values and layout onto the template branch and commits them there, so a three-way merge keeps the project's own edits to them. `--merge` stages that merge on the current branch without committing it, for review. A missing template branch starts from the current commit, so its first merge overwrites the managed files and the review is where project-specific lines get restored. A file the template no longer produces is listed in `_render.RETIRED`, which removes it from the template branch, so the merge deletes it from the project unless the project changed it.
 
 ## Usage
 
@@ -66,7 +66,7 @@ branb build-docs
 # tag and push; CI publishes the release once the tests pass
 branb tag "release message" minor
 
-# pull template changes into the project
+# stage template changes to .gitignore and the workflows, then review and commit
 branb update-boilerplate --merge
 
 # citation metadata

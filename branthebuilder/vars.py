@@ -12,6 +12,7 @@ GITHUB_DIR = Path(".github")
 WORKFLOW_DIR = GITHUB_DIR / "workflows"
 OSC_PATH = WORKFLOW_DIR / "compatibility_test.yml"
 TEMPLATE_DIR = Path(__file__).parent / "template"
+TEMPLATE_BRANCH = "template"
 
 ORCID_DIC_ENV = "ORCID_MAP"
 PYTHON_VERSION = "3.11"

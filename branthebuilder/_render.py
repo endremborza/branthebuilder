@@ -6,7 +6,10 @@ from pathlib import Path
 
 from .vars import GITHUB_DIR, OSC_PATH, TEMPLATE_DIR, WORKFLOW_DIR
 
-# paths earlier templates produced; update-boilerplate removes them from `template`
+# what update-boilerplate re-renders; every other file is the project's after init
+_GITHUB = f"{GITHUB_DIR}/"
+MANAGED = (".gitignore", _GITHUB)
+# paths earlier templates produced; update-boilerplate removes them from the branch
 RETIRED = ((WORKFLOW_DIR / "twine_release.yml").as_posix(), ".readthedocs.yml")
 
 
@@ -44,7 +47,7 @@ def render(ctx: Context, layout: Layout) -> dict[str, str]:
         if p.is_file() and "__pycache__" not in p.parts
     }
     if not layout.actions:
-        files = {k: v for k, v in files.items() if not k.startswith(f"{GITHUB_DIR}/")}
+        files = {k: v for k, v in files.items() if not k.startswith(_GITHUB)}
     elif not layout.os_compatibility:
         del files[OSC_PATH.as_posix()]
     if layout.single_file:

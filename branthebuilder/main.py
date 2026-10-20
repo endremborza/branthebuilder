@@ -16,6 +16,7 @@ from .vars import (
     OSC_PATH,
     PYTHON_VERSION,
     README_PATH,
+    TEMPLATE_BRANCH,
     TEST_DIR,
     Bump,
     bumped,
@@ -64,24 +65,29 @@ def init(
     layout = _render.Layout(actions, os_compatibility, single_file)
     _render.write(_render.render(ctx, layout), root)
     os.chdir(root)
+    check_call(["uv", "sync"])
     if not no_git:
-        # the template branch holds rendered files only; the lock lands after it
         check_call(["git", "init", "-q", "-b", "main"])
         check_call(["git", "add", "-A"])
         check_call(["git", "commit", "-qm", "init"])
-        check_call(["git", "branch", "template"])
-    check_call(["uv", "sync"])
-    if not no_git:
-        check_call(["git", "add", "uv.lock"])
-        check_call(["git", "commit", "-qm", "lock"])
+        check_call(["git", "branch", TEMPLATE_BRANCH])
 
 
 def update_boilerplate(*, merge: bool = False) -> None:
-    """Re-render the template onto the `template` branch; --merge merges it in."""
+    """Re-render .gitignore and the workflows on the template branch.
+
+    A missing template branch starts from the current commit. --merge stages the
+    merge here, uncommitted, for review.
+    """
     _require_clean()
-    files = _render.render(_project_context(), _project_layout())
+    rendered = _render.render(_project_context(), _project_layout())
+    files = {k: v for k, v in rendered.items() if k.startswith(_render.MANAGED)}
     branch = _get_branch()
-    check_call(["git", "checkout", "-q", "template"])
+    if run(
+        ["git", "show-ref", "-q", "--verify", f"refs/heads/{TEMPLATE_BRANCH}"]
+    ).returncode:
+        check_call(["git", "branch", TEMPLATE_BRANCH])
+    check_call(["git", "checkout", "-q", TEMPLATE_BRANCH])
     check_call(["git", "rm", "-q", "--ignore-unmatch", "--", *_render.RETIRED])
     _render.write(files, Path("."))
     check_call(["git", "add", "--", *files])
@@ -89,7 +95,7 @@ def update_boilerplate(*, merge: bool = False) -> None:
         check_call(["git", "commit", "-qm", "update-boilerplate"])
     check_call(["git", "checkout", "-q", branch])
     if merge:
-        check_call(["git", "merge", "template", "--no-edit"])
+        _call("git", "merge", "--no-ff", "--no-commit", TEMPLATE_BRANCH)
 
 
 def test(*, v: bool = False, no_cov: bool = False) -> None:
