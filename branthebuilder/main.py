@@ -1,16 +1,19 @@
 import datetime as dt
 import json
 import os
+import tempfile
 from pathlib import Path
 from subprocess import check_call, check_output, run
+from typing import Annotated
 
-from protocli import Dispatcher
+from protocli import FILES, Dispatcher
 
 from . import _render
 from .vars import (
     CFF_PATH,
     DOC_DIR,
     GITHUB_DIR,
+    LINK_PTH,
     NOTES_PATH,
     ORCID_DIC_ENV,
     OSC_PATH,
@@ -155,6 +158,24 @@ def build_docs() -> None:
     check_call(["uv", "run", "python", "-I", DOCS_SCRIPT.as_posix(), conf.name, out])
 
 
+def link(*paths: Annotated[str, FILES]) -> None:
+    """Import local checkouts ahead of their installed versions; no paths unlinks.
+
+    A .pth file in the project's venv, which uv leaves alone, puts each
+    checkout (its src/ when it has one) first on sys.path, replacing earlier
+    links. It lasts until the venv is recreated; a linked project's new
+    dependencies are not installed.
+    """
+    roots = [_import_root(Path(p)) for p in paths]
+    purelib = "import sysconfig; print(sysconfig.get_paths()['purelib'])"
+    site = check_output(["uv", "run", "python", "-I", "-c", purelib], text=True)
+    pth = Path(site.strip(), LINK_PTH)
+    if roots:
+        pth.write_text(f"import sys; sys.path[0:0] = {roots!r}\n", encoding="utf-8")
+    else:
+        pth.unlink(missing_ok=True)
+
+
 def tag(notes: str, bump: Bump) -> None:
     """Release: one commit (version, notes, CFF), an annotated tag, one atomic push.
 
@@ -256,6 +277,14 @@ def _project_layout() -> _render.Layout:
     )
 
 
+def _import_root(path: Path) -> str:
+    root = path.resolve()
+    if not root.is_dir():
+        raise SystemExit(f"{path} is not a directory")
+    src = root / "src"
+    return (src if src.is_dir() else root).as_posix()
+
+
 def _get_branch() -> str:
     return check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True).strip()
 
@@ -320,6 +349,7 @@ cli = Dispatcher(
         "update-boilerplate": update_boilerplate,
         "test": test,
         "build-docs": build_docs,
+        "link": link,
         "tag": tag,
         "init-cff": init_cff,
         "add-zenodo-concept-doi": add_zenodo_concept_doi,

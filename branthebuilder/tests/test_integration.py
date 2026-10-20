@@ -1,5 +1,5 @@
 from pathlib import Path
-from subprocess import check_call, check_output
+from subprocess import check_call, check_output, run
 
 import pytest
 
@@ -81,10 +81,24 @@ def test_integration(tmp_path, monkeypatch, single_file, actions):
     rendered = gitignore.read_text()
     gitignore.write_text("stale\n")
     _git("commit", "-qam", "stale gitignore")
-    readme = README_PATH.read_text()
+    wip = README_PATH.read_text() + "work in progress\n"
+    README_PATH.write_text(wip)
     ns.update_boilerplate(merge=True)
     assert gitignore.read_text() == rendered
-    assert README_PATH.read_text() == readme
+    assert README_PATH.read_text() == wip
+
+
+def test_link(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    package = Path("sibling", "src", "sibling")
+    package.mkdir(parents=True)
+    (package / "__init__.py").write_text("")
+    ns.init("linked", github_user="someone", no_git=True)
+    probe = ["uv", "run", "python", "-c", "import sibling"]
+    ns.link("../sibling")
+    check_call(probe)
+    ns.link()
+    assert run(probe, capture_output=True).returncode
 
 
 DOCTESTED_FUN = '''

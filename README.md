@@ -46,7 +46,11 @@ The tag push runs `.github/workflows/release.yml`: once the workflow its `gate` 
 
 `branb init <name>` renders `branthebuilder/template/`, replacing each `{{field}}` of `_render.Context` in paths and contents, with the author taken from `git config user.name`/`user.email` and the GitHub owner from `--github-user` or `git config github.user`. `--actions` adds the workflows, `--os-compatibility` the OS matrix, `--single-file` a module instead of a package. The first commit holds everything, including `uv.lock`, and the template branch (`vars.TEMPLATE_BRANCH`) points at it.
 
-After `init` the project owns every file except those matching `_render.MANAGED` (`.gitignore` and the workflows). `branb update-boilerplate` re-renders those with the project's current values and layout onto the template branch and commits them there, so a three-way merge keeps the project's own edits to them. `--merge` stages that merge on the current branch without committing it, for review. A missing template branch starts from the current commit, so its first merge overwrites the managed files and the review is where project-specific lines get restored. A file the template no longer produces is listed in `_render.RETIRED`, which removes it from the template branch, so the merge deletes it from the project unless the project changed it.
+After `init` the project owns every file except those matching `_render.MANAGED` (`.gitignore` and the workflows). `branb update-boilerplate` re-renders those with the project's current values and layout onto the template branch and commits them there, in a temporary worktree that leaves uncommitted work alone, so a three-way merge keeps the project's own edits to them. `--merge` stages that merge on the current branch without committing it, for review. A missing template branch starts from the current commit, so its first merge overwrites the managed files and the review is where project-specific lines get restored. A file the template no longer produces is listed in `_render.RETIRED`, which removes it from the template branch, so the merge deletes it from the project unless the project changed it.
+
+### Developing against local checkouts
+
+`branb link ../atqo ../dirark` makes the project import those checkouts instead of the installed releases, without a `[tool.uv.sources]` path in `pyproject.toml`, so the repo and CI keep resolving dependencies from PyPI. It writes `vars.LINK_PTH` into the project's venv, which uv neither manages nor removes. The file prepends each checkout (its `src/` when it has one) to `sys.path`, and every `uv run` keeps it, including `branb test`. A new link set replaces the old one, `branb link` alone removes it, and recreating the venv drops it. Linking shadows the installed release rather than installing the checkout: a dependency the checkout adds is missing until it is released, and a requirement on an unreleased version still fails to lock.
 
 ## Usage
 
@@ -68,6 +72,10 @@ branb tag "release message" minor
 
 # stage template changes to .gitignore and the workflows, then review and commit
 branb update-boilerplate --merge
+
+# import sibling checkouts instead of their releases; no paths unlinks
+branb link ../atqo ../dirark
+branb link
 
 # citation metadata
 branb init-cff
