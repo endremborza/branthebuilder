@@ -233,7 +233,7 @@ def _project_context() -> _render.Context:
     author = project["authors"][0]
     return _render.Context(
         name=project["name"],
-        description=project["description"],
+        description=project.get("description", ""),
         author=author["name"],
         email=author["email"],
         github_user=project["urls"]["Homepage"].split("/")[-2],
