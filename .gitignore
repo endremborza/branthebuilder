@@ -74,13 +74,6 @@ coverage/html/
 # PyBuilder
 target/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
 # pyenv
 .python-version
 
@@ -124,3 +117,6 @@ dmypy.json
 .idea
 .vscode
 dask-worker-space/
+
+# Jupyter Notebook
+.ipynb_checkpoints
