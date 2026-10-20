@@ -1,99 +1,70 @@
-import importlib
 import re
-import sys
 import tomllib
-from enum import Enum
-from functools import cached_property
 from pathlib import Path
-from warnings import warn
+from typing import Literal
 
 README_PATH = Path("README.md")
 CFF_PATH = Path("CITATION.cff")
 DOC_DIR = Path("docs")
+NOTES_PATH = DOC_DIR / "release_notes.md"
 TEST_DIR = Path("tests")
+GITHUB_DIR = Path(".github")
+WORKFLOW_DIR = GITHUB_DIR / "workflows"
+OSC_PATH = WORKFLOW_DIR / "compatibility_test.yml"
+TEMPLATE_DIR = Path(__file__).parent / "template"
 
 ORCID_DIC_ENV = "ORCID_MAP"
+PYTHON_VERSION = "3.11"
 
-cc_repo = "https://github.com/endremborza/python-boilerplate-v2"
-
-_D = {"project": {"name": ".", "author": []}}
+Bump = Literal["major", "minor", "bug"]
 
 
-class Bump(Enum):
-    major = "major"
-    minor = "minor"
-    bug = "bug"
+def bumped(version: str, bump: Bump) -> str:
+    """
+    >>> [bumped("1.2.3", b) for b in ("major", "minor", "bug")]
+    ['2.0.0', '1.3.0', '1.2.4']
+    """
+    major, minor, bug = map(int, version.split("."))
+    parts = {
+        "major": (major + 1, 0, 0),
+        "minor": (major, minor + 1, 0),
+        "bug": (major, minor, bug + 1),
+    }[bump]
+    return ".".join(map(str, parts))
 
 
 class PackageConf:
-    @cached_property
-    def pytom(self):
-        try:
-            with open("pyproject.toml", "rb") as f:
-                return tomllib.load(f)
-        except FileNotFoundError:
-            warn(f"not in project directory, using defaults {_D}")
-            return _D
+    """The project in the working directory, re-read on each access to follow chdir."""
 
     @property
-    def project_conf(self):
-        return self.pytom["project"]
+    def project_conf(self) -> dict:
+        with open("pyproject.toml", "rb") as f:
+            return tomllib.load(f)["project"]
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.project_conf["name"]
 
     @property
-    def module_path(self):
-        if Path(self.name).exists():
-            return self.name
-        return f"{self.name}.py"
+    def module_path(self) -> str:
+        return self.name if Path(self.name).exists() else f"{self.name}.py"
 
     @property
-    def module(self):
-        cwd = str(Path.cwd())
-        if cwd not in sys.path:
-            sys.path.insert(0, cwd)
-        for site_packages in Path(".venv").glob("lib/python*/site-packages"):
-            s = str(site_packages)
-            if s not in sys.path:
-                sys.path.insert(0, s)
-        module = importlib.import_module(self.name)
-        return importlib.reload(module)
+    def version_file(self) -> Path:
+        path = Path(self.module_path)
+        return path / "__init__.py" if path.is_dir() else path
 
     @property
-    def version(self):
+    def version(self) -> str:
         return re.findall('__version__ = "(.*)"', self.version_file.read_text())[0]
 
-    @property
-    def version_file(self):
-        if Path(self.name).exists():
-            return Path(self.name, "__init__.py")
-        else:
-            return Path(f"{self.name}.py")
-
-    def get_bumped_version(self, bump: Bump):
-        old_v = self.version
-        major, minor, bug = map(int, old_v.split("."))
-        match bump:
-            case Bump.major:
-                major += 1
-                minor = 0
-                bug = 0
-            case Bump.minor:
-                minor += 1
-                bug = 0
-            case Bump.bug:
-                bug += 1
-            case _:
-                raise ValueError(f"wrong kind of bump {bump}")
-        new_v = ".".join(map(str, (major, minor, bug)))
+    def write_version(self, version: str) -> None:
+        text = self.version_file.read_text()
         self.version_file.write_text(
-            self.version_file.read_text().replace(
-                f'__version__ = "{old_v}"', f'__version__ = "{new_v}"'
+            text.replace(
+                f'__version__ = "{self.version}"', f'__version__ = "{version}"'
             )
         )
-        return new_v
 
 
 conf = PackageConf()

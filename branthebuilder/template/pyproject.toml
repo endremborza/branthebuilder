@@ -1,0 +1,22 @@
+[project]
+name = "{{name}}"
+description = "{{description}}"
+dynamic = ["version"]
+authors = [{name = "{{author}}", email = "{{email}}"}]
+license = {file = "LICENSE"}
+readme = "README.md"
+requires-python = ">={{python_version}}"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/{{github_user}}/{{name}}"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "{{name}}/__init__.py"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
