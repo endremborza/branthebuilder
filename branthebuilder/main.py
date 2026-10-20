@@ -76,24 +76,25 @@ def init(
 def update_boilerplate(*, merge: bool = False) -> None:
     """Re-render .gitignore and the workflows on the template branch.
 
-    A missing template branch starts from the current commit. --merge stages the
-    merge here, uncommitted, for review.
+    A missing template branch starts from the current commit. The branch is
+    updated in a temporary worktree, so uncommitted work here is left alone.
+    --merge stages the merge here, uncommitted, for review.
     """
-    _require_clean()
     rendered = _render.render(_project_context(), _project_layout())
     files = {k: v for k, v in rendered.items() if k.startswith(_render.MANAGED)}
-    branch = _get_branch()
     if run(
         ["git", "show-ref", "-q", "--verify", f"refs/heads/{TEMPLATE_BRANCH}"]
     ).returncode:
         check_call(["git", "branch", TEMPLATE_BRANCH])
-    check_call(["git", "checkout", "-q", TEMPLATE_BRANCH])
-    check_call(["git", "rm", "-q", "--ignore-unmatch", "--", *_render.RETIRED])
-    _render.write(files, Path("."))
-    check_call(["git", "add", "--", *files])
-    if run(["git", "diff", "--cached", "--quiet"]).returncode:
-        check_call(["git", "commit", "-qm", "update-boilerplate"])
-    check_call(["git", "checkout", "-q", branch])
+    with tempfile.TemporaryDirectory() as tmp:
+        check_call(["git", "worktree", "add", "-q", tmp, TEMPLATE_BRANCH])
+        git = ["git", "-C", tmp]
+        check_call([*git, "rm", "-q", "--ignore-unmatch", "--", *_render.RETIRED])
+        _render.write(files, Path(tmp))
+        check_call([*git, "add", "--", *files])
+        if run([*git, "diff", "--cached", "--quiet"]).returncode:
+            check_call([*git, "commit", "-qm", "update-boilerplate"])
+        check_call(["git", "worktree", "remove", tmp])
     if merge:
         _call("git", "merge", "--no-ff", "--no-commit", TEMPLATE_BRANCH)
 
