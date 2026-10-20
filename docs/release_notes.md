@@ -1,3 +1,11 @@
+## v7.1.0
+
+- Added `branb link <paths>` to import local checkouts instead of their installed releases for development; `branb link` alone removes the links.
+- `branb update-boilerplate` now runs in a temporary worktree and no longer requires a clean working tree.
+- Trimmed the template `.gitignore` (dropped Jupyter/IPython entries) and fixed its missing trailing newline, so newly rendered projects pick up the corrected file.
+
+---
+
 ## v7.0.0
 
 - **Breaking:** `update-boilerplate` re-renders and merges only `.gitignore` and the GitHub workflows; every other file is the project's own after `init` and is no longer touched.
