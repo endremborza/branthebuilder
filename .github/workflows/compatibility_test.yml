@@ -21,9 +21,5 @@ jobs:
         with:
           python-version: '3.11'
           enable-cache: true
-      - run: uv tool install -e .
-      - run: |
-          git config --global user.email "ci@example.com"
-          git config --global user.name "CI"
-          git config --global init.defaultBranch main
+      - run: uv tool install branthebuilder
       - run: branb test
